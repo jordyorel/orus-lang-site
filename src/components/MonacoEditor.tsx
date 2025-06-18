@@ -1,6 +1,7 @@
 
 import { useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
+import { useTheme } from 'next-themes';
 
 interface MonacoEditorProps {
   value: string;
@@ -15,11 +16,11 @@ const MonacoEditor = ({
   value, 
   onChange, 
   language = 'rust',
-  theme = 'vs',
   height = '400px',
   readOnly = false 
 }: MonacoEditorProps) => {
   const editorRef = useRef<any>(null);
+  const { theme } = useTheme();
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
     editorRef.current = monaco;
@@ -40,8 +41,8 @@ const MonacoEditor = ({
       }
     });
 
-    // Set custom theme similar to Rust playground
-    monaco.editor.defineTheme('rust-playground', {
+    // Set light theme
+    monaco.editor.defineTheme('rust-playground-light', {
       base: 'vs',
       inherit: true,
       rules: [
@@ -60,16 +61,43 @@ const MonacoEditor = ({
         'editorCursor.foreground': '#000000',
       }
     });
+
+    // Set dark theme
+    monaco.editor.defineTheme('rust-playground-dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'comment', foreground: '#6A9955' },
+        { token: 'keyword', foreground: '#C586C0' },
+        { token: 'string', foreground: '#CE9178' },
+        { token: 'number', foreground: '#B5CEA8' },
+        { token: 'type', foreground: '#4EC9B0' },
+      ],
+      colors: {
+        'editor.background': '#1E1E1E',
+        'editor.foreground': '#D4D4D4',
+        'editorLineNumber.foreground': '#858585',
+        'editor.selectionBackground': '#264F78',
+        'editor.lineHighlightBackground': '#2A2D2E',
+        'editorCursor.foreground': '#AEAFAD',
+      }
+    });
     
-    monaco.editor.setTheme('rust-playground');
+    monaco.editor.setTheme(theme === 'dark' ? 'rust-playground-dark' : 'rust-playground-light');
   };
+
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.editor.setTheme(theme === 'dark' ? 'rust-playground-dark' : 'rust-playground-light');
+    }
+  }, [theme]);
 
   return (
     <div className="h-full w-full">
       <Editor
         height={height}
         language={language === 'orus' ? 'rust' : language}
-        theme="rust-playground"
+        theme={theme === 'dark' ? 'rust-playground-dark' : 'rust-playground-light'}
         value={value}
         onChange={(value) => onChange(value || '')}
         onMount={handleEditorDidMount}

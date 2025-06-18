@@ -2,6 +2,7 @@
 import PlaygroundToolbar from './PlaygroundToolbar';
 import CodeEditor from './CodeEditor';
 import OutputPanel from './OutputPanel';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 interface PlaygroundContentProps {
   code: string;
@@ -27,7 +28,7 @@ const PlaygroundContent = ({
   return (
     <>
       {/* Toolbar */}
-      <div className="bg-charcoal-100 border-b border-charcoal-300 px-4 py-2">
+      <div className="bg-charcoal-100 dark:bg-charcoal-800 border-b border-charcoal-300 dark:border-charcoal-600 px-4 py-2">
         <PlaygroundToolbar
           isRunning={isRunning}
           onRun={onRun}
@@ -38,16 +39,20 @@ const PlaygroundContent = ({
       </div>
 
       {/* Editor and Output Area */}
-      <div className="flex-1 flex min-w-0">
-        {/* Code Editor */}
-        <div className="flex-1 border-r border-charcoal-300 min-w-0">
-          <CodeEditor code={code} onChange={onChange} />
-        </div>
+      <div className="flex-1 min-w-0">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {/* Code Editor */}
+          <ResizablePanel defaultSize={60} minSize={30}>
+            <CodeEditor code={code} onChange={onChange} />
+          </ResizablePanel>
 
-        {/* Output Panel */}
-        <div className="flex-1 min-w-0">
-          <OutputPanel output={output} isRunning={isRunning} />
-        </div>
+          <ResizableHandle withHandle className="bg-charcoal-300 dark:bg-charcoal-600 hover:bg-gold-400 dark:hover:bg-gold-500 transition-colors" />
+
+          {/* Output Panel */}
+          <ResizablePanel defaultSize={40} minSize={30}>
+            <OutputPanel output={output} isRunning={isRunning} />
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </>
   );
