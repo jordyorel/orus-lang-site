@@ -25,19 +25,9 @@ const Navigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
             <img 
-              src="./orus.png" 
+              src="/orus.png" 
               alt="Orus" 
               className="w-8 h-8 object-contain"
-              onError={(e) => {
-                // Fallback to a different path if the first one fails
-                const target = e.target as HTMLImageElement;
-                if (target.src.includes('./orus.png')) {
-                  target.src = '/orus.png';
-                } else if (target.src.includes('/orus.png')) {
-                  // If both paths fail, hide the image and show text-only logo
-                  target.style.display = 'none';
-                }
-              }}
             />
             <span className="text-xl font-bold text-gold-400">Orus</span>
           </Link>
