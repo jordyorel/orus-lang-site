@@ -5,6 +5,8 @@ import { ArrowRight, Zap, Shield, Cpu, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
+  console.log('Home component is rendering');
+
   const features = [
     {
       icon: Zap,
@@ -44,6 +46,9 @@ struct Point {
 let p = Point{ x: 1, y: 2 }
 print(p.x)`;
 
+  console.log('Home component features:', features.length);
+  console.log('Home component rendering complete');
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-charcoal-950">
       {/* Hero Section */}
@@ -57,6 +62,11 @@ print(p.x)`;
                 src="/orus.png" 
                 alt="Orus Language Logo" 
                 className="w-20 h-20 object-contain"
+                onError={(e) => {
+                  console.log('Logo failed to load');
+                  e.currentTarget.style.display = 'none';
+                }}
+                onLoad={() => console.log('Logo loaded successfully')}
               />
             </div>
             

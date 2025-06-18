@@ -15,27 +15,31 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <div className="min-h-screen bg-charcoal-950">
-          <Navigation />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/install" element={<Install />} />
-            <Route path="/docs" element={<Docs />} />
-            <Route path="/docs/:section" element={<DocContent />} />
-            <Route path="/play" element={<Playground />} />
-            <Route path="/roadmap" element={<Roadmap />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  console.log('App component is rendering');
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <div className="min-h-screen bg-charcoal-950">
+            <Navigation />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/install" element={<Install />} />
+              <Route path="/docs" element={<Docs />} />
+              <Route path="/docs/:section" element={<DocContent />} />
+              <Route path="/play" element={<Playground />} />
+              <Route path="/roadmap" element={<Roadmap />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
