@@ -1,6 +1,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
+import { getMonacoInstance, setMonacoInstance, getEditorInstance, setEditorInstance } from '@/utils/monacoCache';
 
 interface MonacoEditorProps {
   value: string;
@@ -21,34 +22,30 @@ const MonacoEditor = ({
   forceDarkMode = false
 }: MonacoEditorProps) => {
   const editorRef = useRef<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Set a timeout to detect if Monaco is taking too long
-    const timeoutId = setTimeout(() => {
-      if (isLoading) {
-        console.warn('Monaco editor taking too long to load, showing fallback');
-        setHasError(true);
-        setIsLoading(false);
-      }
-    }, 3000);
-
-    return () => clearTimeout(timeoutId);
-  }, [isLoading]);
+    // Check if we have a cached Monaco instance
+    const cachedMonaco = getMonacoInstance();
+    if (cachedMonaco) {
+      setIsReady(true);
+    }
+  }, []);
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
-    console.log('Monaco editor mounted successfully');
+    console.log('Monaco editor mounted');
     editorRef.current = editor;
-    setIsLoading(false);
-    setHasError(false);
+    setMonacoInstance(monaco);
+    setEditorInstance(editor);
+    setIsReady(true);
     
-    // Simple theme setup
+    // Configure editor
     try {
       monaco.editor.setTheme('vs-dark');
       editor.focus();
     } catch (error) {
-      console.warn('Error setting Monaco theme:', error);
+      console.warn('Error configuring Monaco:', error);
     }
   };
 
@@ -58,29 +55,8 @@ const MonacoEditor = ({
     }
   };
 
-  const handleEditorError = () => {
-    console.error('Monaco editor failed to load');
-    setHasError(true);
-    setIsLoading(false);
-  };
-
-  // Fallback textarea if Monaco fails
-  if (hasError) {
-    return (
-      <div className="h-full w-full">
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full h-full bg-gray-900 text-gray-200 font-mono text-sm p-4 border-none outline-none resize-none"
-          placeholder="Code editor (fallback mode)"
-          style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace' }}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="h-full w-full">
+    <div ref={containerRef} className="h-full w-full">
       <Editor
         height={height}
         language="rust"

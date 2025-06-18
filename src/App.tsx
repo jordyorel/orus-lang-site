@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,11 +11,15 @@ import DocContent from "./pages/DocContent";
 import Playground from "./pages/Playground";
 import Roadmap from "./pages/Roadmap";
 import NotFound from "./pages/NotFound";
+import { useMonacoPreloader } from '@/hooks/useMonacoPreloader';
 
 const queryClient = new QueryClient();
 
 const App = () => {
   console.log('App component is rendering');
+  
+  // Preload Monaco editor on app start
+  useMonacoPreloader();
   
   return (
     <QueryClientProvider client={queryClient}>
