@@ -21,32 +21,6 @@ const MonacoEditor = ({
 }: MonacoEditorProps) => {
   const editorRef = useRef<any>(null);
 
-  useEffect(() => {
-    // Configure Monaco Editor theme to match our design
-    if (editorRef.current) {
-      const monaco = editorRef.current;
-      monaco.editor.defineTheme('orus-dark', {
-        base: 'vs-dark',
-        inherit: true,
-        rules: [
-          { token: 'comment', foreground: '#6B7280' },
-          { token: 'keyword', foreground: '#F59E0B' },
-          { token: 'string', foreground: '#10B981' },
-          { token: 'number', foreground: '#3B82F6' },
-          { token: 'type', foreground: '#8B5CF6' },
-        ],
-        colors: {
-          'editor.background': '#1F1F1F',
-          'editor.foreground': '#E5E7EB',
-          'editorLineNumber.foreground': '#6B7280',
-          'editor.selectionBackground': '#F59E0B33',
-          'editor.lineHighlightBackground': '#F59E0B0A',
-        }
-      });
-      monaco.editor.setTheme('orus-dark');
-    }
-  }, []);
-
   const handleEditorDidMount = (editor: any, monaco: any) => {
     editorRef.current = monaco;
     
@@ -91,7 +65,7 @@ const MonacoEditor = ({
   };
 
   return (
-    <div className="border border-charcoal-700 rounded-lg overflow-hidden">
+    <div className="h-full w-full border border-charcoal-700 rounded-lg overflow-hidden">
       <Editor
         height={height}
         language={language === 'orus' ? 'rust' : language}
