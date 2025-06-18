@@ -4,6 +4,8 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { CodeEditorProps } from '@/types/playground';
 
 const CodeEditor = ({ code, onChange }: CodeEditorProps) => {
+  console.log('CodeEditor rendering with code length:', code.length);
+
   return (
     <div className="h-full flex flex-col bg-charcoal-900">
       <div className="flex items-center justify-between px-4 py-2 border-b border-charcoal-600 bg-charcoal-800 flex-shrink-0">

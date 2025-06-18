@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { usePlayground } from '@/hooks/usePlayground';
 import { playgroundExamples } from '@/data/playgroundExamples';
 import { Toaster } from '@/components/ui/toaster';
+import { useEffect } from 'react';
 
 const Playground = () => {
   const {
@@ -24,6 +25,12 @@ const Playground = () => {
     clearOutput,
     handleExampleSelect
   } = usePlayground();
+
+  useEffect(() => {
+    console.log('Playground component mounted');
+    console.log('Code length:', code.length);
+    console.log('Examples count:', playgroundExamples.length);
+  }, [code]);
 
   return (
     <div className="h-screen bg-charcoal-950 flex flex-col">
