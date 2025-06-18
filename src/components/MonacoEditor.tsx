@@ -1,6 +1,6 @@
 
-import React, { useRef, useEffect } from 'react';
-import * as monaco from 'monaco-editor';
+import React from 'react';
+import Editor from '@monaco-editor/react';
 
 interface MonacoEditorProps {
   value: string;
@@ -17,16 +17,18 @@ const MonacoEditor = ({
   height = '400px',
   forceDarkMode = false 
 }: MonacoEditorProps) => {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const handleEditorChange = (value: string | undefined) => {
+    onChange(value || '');
+  };
 
-  useEffect(() => {
-    if (editorRef.current && !monacoEditorRef.current) {
-      // Initialize Monaco Editor
-      monacoEditorRef.current = monaco.editor.create(editorRef.current, {
-        value: value,
-        language: language,
-        theme: forceDarkMode ? 'vs-dark' : 'vs',
+  return (
+    <Editor
+      height={height}
+      language={language}
+      value={value}
+      onChange={handleEditorChange}
+      theme={forceDarkMode ? 'vs-dark' : 'light'}
+      options={{
         automaticLayout: true,
         fontSize: 14,
         lineNumbers: 'on',
@@ -34,38 +36,7 @@ const MonacoEditor = ({
         scrollBeyondLastLine: false,
         readOnly: false,
         minimap: { enabled: false },
-      });
-
-      // Listen for content changes
-      monacoEditorRef.current.onDidChangeModelContent(() => {
-        const currentValue = monacoEditorRef.current?.getValue() || '';
-        onChange(currentValue);
-      });
-    }
-
-    return () => {
-      if (monacoEditorRef.current) {
-        monacoEditorRef.current.dispose();
-        monacoEditorRef.current = null;
-      }
-    };
-  }, []);
-
-  // Update value when prop changes
-  useEffect(() => {
-    if (monacoEditorRef.current) {
-      const currentValue = monacoEditorRef.current.getValue();
-      if (currentValue !== value) {
-        monacoEditorRef.current.setValue(value);
-      }
-    }
-  }, [value]);
-
-  return (
-    <div 
-      ref={editorRef} 
-      style={{ height }} 
-      className="w-full"
+      }}
     />
   );
 };
