@@ -2,18 +2,18 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Home, Download, BookOpen, Code, MapPin } from 'lucide-react';
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
   const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Install', path: '/install' },
-    { name: 'Docs', path: '/docs' },
-    { name: 'Playground', path: '/play' },
-    { name: 'Roadmap', path: '/roadmap' },
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Install', path: '/install', icon: Download },
+    { name: 'Docs', path: '/docs', icon: BookOpen },
+    { name: 'Playground', path: '/play', icon: Code },
+    { name: 'Roadmap', path: '/roadmap', icon: MapPin },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -34,19 +34,23 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.path}
-                className={`text-sm font-medium transition-colors ${
-                  isActive(item.path)
-                    ? 'text-gold-400'
-                    : 'text-charcoal-300 hover:text-gold-400'
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className={`flex items-center space-x-2 text-sm font-medium transition-colors ${
+                    isActive(item.path)
+                      ? 'text-gold-400'
+                      : 'text-charcoal-300 hover:text-gold-400'
+                  }`}
+                >
+                  <Icon size={16} />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
           </div>
 
           {/* Mobile menu button */}
@@ -66,20 +70,24 @@ const Navigation = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-charcoal-800">
             <div className="flex flex-col space-y-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`text-sm font-medium transition-colors ${
-                    isActive(item.path)
-                      ? 'text-gold-400'
-                      : 'text-charcoal-300 hover:text-gold-400'
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`flex items-center space-x-2 text-sm font-medium transition-colors ${
+                      isActive(item.path)
+                        ? 'text-gold-400'
+                        : 'text-charcoal-300 hover:text-gold-400'
+                    }`}
+                  >
+                    <Icon size={16} />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
