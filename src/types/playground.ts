@@ -11,6 +11,7 @@ export interface PlaygroundToolbarProps {
   onReset: () => void;
   onShare: () => void;
   onExport: () => void;
+  onHelp: () => void;
 }
 
 export interface CodeEditorProps {
@@ -21,6 +22,7 @@ export interface CodeEditorProps {
 export interface OutputPanelProps {
   output: string;
   isRunning: boolean;
+  onClear: () => void;
 }
 
 export interface ExamplesSidebarProps {

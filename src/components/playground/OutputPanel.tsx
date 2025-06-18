@@ -3,7 +3,7 @@ import { Terminal, X } from 'lucide-react';
 import { OutputPanelProps } from '@/types/playground';
 import { Button } from '@/components/ui/button';
 
-const OutputPanel = ({ output, isRunning }: OutputPanelProps) => {
+const OutputPanel = ({ output, isRunning, onClear }: OutputPanelProps) => {
   return (
     <div className="h-full flex flex-col bg-charcoal-900">
       <div className="flex items-center justify-between px-4 py-2 border-b border-charcoal-600 bg-charcoal-800 flex-shrink-0">
@@ -11,7 +11,12 @@ const OutputPanel = ({ output, isRunning }: OutputPanelProps) => {
           <Terminal size={14} className="text-charcoal-400" />
           <span className="text-sm font-medium text-charcoal-300">Output</span>
         </div>
-        <Button variant="ghost" size="sm" className="text-charcoal-400 hover:text-charcoal-200 p-1">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onClear}
+          className="text-charcoal-400 hover:text-charcoal-200 p-1"
+        >
           <X size={14} />
         </Button>
       </div>

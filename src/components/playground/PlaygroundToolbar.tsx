@@ -8,7 +8,8 @@ const PlaygroundToolbar = ({
   onRun, 
   onReset, 
   onShare, 
-  onExport 
+  onExport,
+  onHelp
 }: PlaygroundToolbarProps) => {
   return (
     <div className="flex items-center justify-between">
@@ -49,6 +50,7 @@ const PlaygroundToolbar = ({
         <Button
           variant="ghost"
           size="sm"
+          onClick={onHelp}
           className="text-charcoal-300 hover:text-charcoal-100 hover:bg-charcoal-700 text-sm px-3 py-1.5"
         >
           <BookOpen size={14} className="mr-1.5" />

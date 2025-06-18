@@ -13,6 +13,8 @@ interface PlaygroundContentProps {
   onReset: () => void;
   onShare: () => void;
   onExport: () => void;
+  onHelp: () => void;
+  onClearOutput: () => void;
 }
 
 const PlaygroundContent = ({
@@ -23,11 +25,13 @@ const PlaygroundContent = ({
   onRun,
   onReset,
   onShare,
-  onExport
+  onExport,
+  onHelp,
+  onClearOutput
 }: PlaygroundContentProps) => {
   return (
     <>
-      {/* Toolbar - Always dark */}
+      {/* Toolbar */}
       <div className="bg-charcoal-800 border-b border-charcoal-600 px-4 py-2">
         <PlaygroundToolbar
           isRunning={isRunning}
@@ -35,6 +39,7 @@ const PlaygroundContent = ({
           onReset={onReset}
           onShare={onShare}
           onExport={onExport}
+          onHelp={onHelp}
         />
       </div>
 
@@ -50,7 +55,7 @@ const PlaygroundContent = ({
 
           {/* Output Panel */}
           <ResizablePanel defaultSize={40} minSize={30}>
-            <OutputPanel output={output} isRunning={isRunning} />
+            <OutputPanel output={output} isRunning={isRunning} onClear={onClearOutput} />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

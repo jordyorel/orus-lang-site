@@ -6,6 +6,7 @@ import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePlayground } from '@/hooks/usePlayground';
 import { playgroundExamples } from '@/data/playgroundExamples';
+import { Toaster } from '@/components/ui/toaster';
 
 const Playground = () => {
   const {
@@ -19,12 +20,14 @@ const Playground = () => {
     resetCode,
     shareCode,
     exportCode,
+    showHelp,
+    clearOutput,
     handleExampleSelect
   } = usePlayground();
 
   return (
     <div className="h-screen bg-charcoal-950 flex flex-col">
-      {/* Header - Always dark */}
+      {/* Header */}
       <div className="bg-charcoal-900 text-white px-4 py-2 border-b border-charcoal-800">
         <div className="flex items-center justify-between">
           <PlaygroundHeader />
@@ -36,7 +39,7 @@ const Playground = () => {
         </div>
       </div>
 
-      {/* Main Content - Always dark */}
+      {/* Main Content */}
       <div className="flex-1 flex overflow-hidden min-h-0">
         <PlaygroundSidebar
           sidebarOpen={sidebarOpen}
@@ -56,9 +59,13 @@ const Playground = () => {
             onReset={resetCode}
             onShare={shareCode}
             onExport={exportCode}
+            onHelp={showHelp}
+            onClearOutput={clearOutput}
           />
         </div>
       </div>
+      
+      <Toaster />
     </div>
   );
 };

@@ -1,5 +1,5 @@
-
 import { useState } from 'react';
+import { toast } from '@/components/ui/use-toast';
 
 const DEFAULT_CODE = `fn main() {
     let name = "World";
@@ -46,6 +46,7 @@ export const usePlayground = () => {
 
   const runCode = async () => {
     setIsRunning(true);
+    setOutput(''); // Clear previous output
     // Simulate code execution
     setTimeout(() => {
       setOutput(EXAMPLE_OUTPUT);
@@ -58,20 +59,93 @@ export const usePlayground = () => {
     println!("Hello, Orus!");
 }`);
     setOutput('');
+    toast({
+      title: "Code Reset",
+      description: "The playground has been reset to the default code.",
+    });
   };
 
-  const shareCode = () => {
-    navigator.clipboard.writeText(window.location.href + '?code=' + encodeURIComponent(code));
+  const shareCode = async () => {
+    try {
+      const shareUrl = `${window.location.origin}${window.location.pathname}?code=${encodeURIComponent(code)}`;
+      await navigator.clipboard.writeText(shareUrl);
+      
+      toast({
+        title: "Share Link Created",
+        description: "The playground URL has been copied to your clipboard.",
+      });
+    } catch (error) {
+      toast({
+        title: "Share Failed",
+        description: "Failed to create share link. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const exportCode = () => {
-    // Export logic
+  const exportCode = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      toast({
+        title: "Code Copied",
+        description: "The code has been copied to your clipboard.",
+      });
+    } catch (error) {
+      // Fallback: create downloadable file
+      const blob = new Blob([code], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'main.rs';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Code Downloaded",
+        description: "The code has been downloaded as main.rs file.",
+      });
+    }
+  };
+
+  const showHelp = () => {
+    toast({
+      title: "Orus Playground Help",
+      description: "Use the examples on the left to get started. Click Run to execute your code. Use Share to copy a link or Copy URL to copy just the code.",
+    });
+  };
+
+  const clearOutput = () => {
+    setOutput('');
+    toast({
+      title: "Output Cleared",
+      description: "The output panel has been cleared.",
+    });
   };
 
   const handleExampleSelect = (exampleCode: string) => {
     setCode(exampleCode);
     setOutput('');
+    toast({
+      title: "Example Loaded",
+      description: "The example code has been loaded into the editor.",
+    });
   };
+
+  // Load code from URL parameter on mount
+  useState(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeParam = urlParams.get('code');
+    if (codeParam) {
+      try {
+        const decodedCode = decodeURIComponent(codeParam);
+        setCode(decodedCode);
+      } catch (error) {
+        console.error('Failed to decode code from URL:', error);
+      }
+    }
+  });
 
   return {
     code,
@@ -84,6 +158,8 @@ export const usePlayground = () => {
     resetCode,
     shareCode,
     exportCode,
+    showHelp,
+    clearOutput,
     handleExampleSelect
   };
 };
