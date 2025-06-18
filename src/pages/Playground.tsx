@@ -10,6 +10,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { useEffect } from 'react';
 
 const Playground = () => {
+  console.log('Playground component is rendering');
+  
   const {
     code,
     setCode,
@@ -30,7 +32,10 @@ const Playground = () => {
     console.log('Playground component mounted');
     console.log('Code length:', code.length);
     console.log('Examples count:', playgroundExamples.length);
-  }, [code]);
+    console.log('Sidebar open:', sidebarOpen);
+  }, [code, sidebarOpen]);
+
+  console.log('Playground rendering with code:', code.substring(0, 50) + '...');
 
   return (
     <div className="h-screen bg-charcoal-950 flex flex-col">
