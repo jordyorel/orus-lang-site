@@ -6,6 +6,7 @@ import { Menu, X, Home, Download, BookOpen, Code, MapPin } from 'lucide-react';
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const location = useLocation();
 
   const navItems = [
@@ -18,17 +19,30 @@ const Navigation = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const handleLogoError = () => {
+    console.log('Logo failed to load from /orus.png');
+    setLogoError(true);
+  };
+
   return (
     <nav className="bg-charcoal-950/95 backdrop-blur-sm border-b border-charcoal-800 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            <img 
-              src="/orus.png" 
-              alt="Orus" 
-              className="w-8 h-8 object-contain"
-            />
+            {!logoError ? (
+              <img 
+                src="/orus.png" 
+                alt="Orus" 
+                className="w-8 h-8 object-contain"
+                onError={handleLogoError}
+                onLoad={() => console.log('Logo loaded successfully')}
+              />
+            ) : (
+              <div className="w-8 h-8 bg-gold-400 rounded flex items-center justify-center text-charcoal-950 font-bold text-sm">
+                O
+              </div>
+            )}
             <span className="text-xl font-bold text-gold-400">Orus</span>
           </Link>
 
