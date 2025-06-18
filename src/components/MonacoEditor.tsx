@@ -21,57 +21,67 @@ const MonacoEditor = ({
   forceDarkMode = false
 }: MonacoEditorProps) => {
   const editorRef = useRef<any>(null);
-  const [isEditorReady, setIsEditorReady] = useState(false);
-  const [editorError, setEditorError] = useState<string | null>(null);
+  const [loadingFailed, setLoadingFailed] = useState(false);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   console.log('MonacoEditor rendering - value length:', value.length, 'readOnly:', readOnly);
+
+  // Set a timeout to fallback to textarea if Monaco takes too long
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      console.log('Monaco editor loading timeout, switching to textarea');
+      setLoadingTimeout(true);
+    }, 5000); // 5 second timeout
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
     console.log('Monaco editor mounted successfully');
     editorRef.current = editor;
-    setIsEditorReady(true);
     
-    // Simple configuration without complex language setup
     try {
-      monaco.editor.defineTheme('rust-playground-dark', {
-        base: 'vs-dark',
-        inherit: true,
-        rules: [],
-        colors: {
-          'editor.background': '#1E1E1E',
-          'editor.foreground': '#D4D4D4',
-        }
-      });
+      // Set dark theme
+      monaco.editor.setTheme('vs-dark');
       
-      monaco.editor.setTheme('rust-playground-dark');
-      
-      // Focus the editor to enable typing
+      // Focus the editor
       editor.focus();
       console.log('Editor focused and ready for input');
     } catch (error) {
       console.error('Error configuring Monaco editor:', error);
+      setLoadingFailed(true);
     }
   };
 
   const handleEditorChange = (value: string | undefined) => {
-    console.log('Monaco editor content changed, new value:', value);
+    console.log('Monaco editor content changed');
     if (value !== undefined) {
       onChange(value);
     }
   };
 
-  // Simple fallback textarea
-  if (editorError) {
-    console.log('Monaco editor failed, showing textarea fallback');
+  const handleEditorLoadingError = (error: any) => {
+    console.error('Monaco editor failed to load:', error);
+    setLoadingFailed(true);
+  };
+
+  // Use textarea fallback if Monaco fails or times out
+  if (loadingFailed || loadingTimeout) {
+    console.log('Using textarea fallback');
     return (
       <div className="h-full w-full">
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="w-full h-full bg-gray-900 text-gray-200 font-mono text-sm p-4 resize-none border-none outline-none"
-          style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace' }}
+          style={{ 
+            fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+            lineHeight: '1.5',
+            tabSize: 4
+          }}
           readOnly={readOnly}
           placeholder="Enter your Rust code here..."
+          spellCheck={false}
         />
       </div>
     );
@@ -105,21 +115,14 @@ const MonacoEditor = ({
           scrollBeyondLastLine: false,
           automaticLayout: true,
           wordWrap: 'on',
-          smoothScrolling: true,
           cursorBlinking: 'blink',
           padding: { top: 16, bottom: 16 },
           selectOnLineNumbers: true,
-          roundedSelection: false,
-          renderIndentGuides: true,
-          cursorSurroundingLines: 0,
-          cursorSurroundingLinesStyle: 'default',
-          suggestOnTriggerCharacters: true,
           acceptSuggestionOnEnter: 'on',
-          acceptSuggestionOnCommitCharacter: true,
-          snippetSuggestions: 'top',
-          tabCompletion: 'on',
-          wordBasedSuggestions: 'matchingDocuments',
-          semanticHighlighting: true
+          quickSuggestions: false,
+          parameterHints: { enabled: false },
+          suggestOnTriggerCharacters: false,
+          wordBasedSuggestions: 'off'
         }}
       />
     </div>
