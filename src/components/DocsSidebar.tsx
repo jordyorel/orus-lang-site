@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronDown, Book, Zap, Shield, Code, Settings, FileText } from 'lucide-react';
+import { ChevronRight, ChevronDown, Book, Code, Layers, Zap, Settings, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -29,59 +29,59 @@ const DocsSidebar = () => {
       icon: Book,
       items: [
         { title: 'Introduction', path: '/docs' },
-        { title: 'Installation', path: '/docs/installation' },
         { title: 'Hello World', path: '/docs/hello-world' },
         { title: 'Basic Syntax', path: '/docs/syntax' },
+        { title: 'Variables & Types', path: '/docs/variables' },
       ]
     },
     {
       title: 'Language Features',
-      icon: Zap,
+      icon: Code,
       items: [
-        { title: 'Variables & Types', path: '/docs/variables' },
         { title: 'Functions', path: '/docs/functions' },
         { title: 'Control Flow', path: '/docs/control-flow' },
         { title: 'Pattern Matching', path: '/docs/pattern-matching' },
-      ]
-    },
-    {
-      title: 'Memory Management',
-      icon: Shield,
-      items: [
-        { title: 'Ownership', path: '/docs/ownership' },
-        { title: 'Borrowing', path: '/docs/borrowing' },
-        { title: 'Lifetimes', path: '/docs/lifetimes' },
-        { title: 'Smart Pointers', path: '/docs/smart-pointers' },
+        { title: 'Arrays & Slicing', path: '/docs/arrays' },
       ]
     },
     {
       title: 'Advanced Topics',
-      icon: Code,
+      icon: Layers,
       items: [
-        { title: 'Concurrency', path: '/docs/concurrency' },
-        { title: 'Async Programming', path: '/docs/async' },
-        { title: 'FFI', path: '/docs/ffi' },
-        { title: 'Unsafe Code', path: '/docs/unsafe' },
+        { title: 'Structs & Methods', path: '/docs/structs' },
+        { title: 'Generics', path: '/docs/generics' },
+        { title: 'Modules', path: '/docs/modules' },
+        { title: 'Error Handling', path: '/docs/error-handling' },
       ]
     },
     {
-      title: 'Tooling',
+      title: 'Built-ins & Standard Library',
+      icon: Zap,
+      items: [
+        { title: 'Built-in Functions', path: '/docs/builtins' },
+        { title: 'Standard Library', path: '/docs/stdlib' },
+        { title: 'Collections', path: '/docs/collections' },
+        { title: 'Math & Random', path: '/docs/math-random' },
+      ]
+    },
+    {
+      title: 'Development',
       icon: Settings,
       items: [
-        { title: 'Package Manager', path: '/docs/package-manager' },
-        { title: 'Testing', path: '/docs/testing' },
         { title: 'Debugging', path: '/docs/debugging' },
-        { title: 'Profiling', path: '/docs/profiling' },
+        { title: 'Testing', path: '/docs/testing' },
+        { title: 'Best Practices', path: '/docs/best-practices' },
+        { title: 'Performance', path: '/docs/performance' },
       ]
     },
     {
       title: 'Reference',
       icon: FileText,
       items: [
-        { title: 'Standard Library', path: '/docs/stdlib' },
-        { title: 'Compiler Options', path: '/docs/compiler' },
+        { title: 'Language Reference', path: '/docs/reference' },
         { title: 'Error Codes', path: '/docs/errors' },
-        { title: 'Glossary', path: '/docs/glossary' },
+        { title: 'Roadmap', path: '/docs/roadmap' },
+        { title: 'Examples', path: '/docs/examples' },
       ]
     }
   ];

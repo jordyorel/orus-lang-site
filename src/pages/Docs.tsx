@@ -15,55 +15,60 @@ const Docs = () => {
     },
     {
       title: 'Language Features',
-      description: 'Explore Orus syntax and capabilities',
+      description: 'Explore Orus syntax and capabilities',  
       icon: Code,
       path: '/docs/syntax'
     },
     {
-      title: 'Performance Tips',
-      description: 'Write efficient Orus code',
+      title: 'Built-in Functions',
+      description: 'Discover Orus built-in utilities',
       icon: Zap,
-      path: '/docs/performance'
+      path: '/docs/builtins'
     },
     {
-      title: 'Memory Safety',
-      description: 'Understanding ownership and borrowing',
+      title: 'Memory & Safety',
+      description: 'Understanding ownership and types',
       icon: Shield,
-      path: '/docs/ownership'
+      path: '/docs/variables'
     }
   ];
 
-  const exampleCode = `use orus::prelude::*;
-
-#[derive(Debug)]
-struct Person {
-    name: String,
-    age: u32,
+  const exampleCode = `fn main() {
+    print("Hello, Orus!")
 }
 
-impl Person {
-    fn new(name: &str, age: u32) -> Person {
-        Person {
-            name: name.to_string(),
-            age,
-        }
+// Variables and mutability
+let number: i32 = 5     // immutable
+let mut count = 0       // mutable
+
+// Structs and methods
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Point {
+    fn new(x: i32, y: i32) -> Point {
+        return Point{ x: x, y: y }
     }
     
-    fn greet(&self) -> String {
-        format!("Hello, I'm {} and I'm {} years old", self.name, self.age)
+    fn move_by(self, dx: i32, dy: i32) {
+        self.x = self.x + dx
+        self.y = self.y + dy
     }
 }
 
-fn main() {
-    let person = Person::new("Alice", 30);
-    println!("{}", person.greet());
-    
-    // Pattern matching
-    match person.age {
-        0..=17 => println!("Minor"),
-        18..=64 => println!("Adult"),
-        _ => println!("Senior"),
-    }
+// Pattern matching
+match value {
+    0 => print("zero"),
+    1 => print("one"), 
+    _ => print("other"),
+}
+
+// Arrays and iteration
+let nums: [i32; 3] = [1, 2, 3]
+for i in 0..5 {
+    print(i)
 }`;
 
   return (
@@ -84,7 +89,7 @@ fn main() {
               </h1>
               <p className="text-xl text-charcoal-400 max-w-3xl">
                 Complete guide to the Orus programming language. Learn everything from basic syntax 
-                to advanced systems programming concepts.
+                to advanced language features like generics, modules, and error handling.
               </p>
             </div>
 
@@ -92,28 +97,27 @@ fn main() {
             <Card className="bg-charcoal-800/50 border-charcoal-700 p-8 mb-8">
               <h2 className="text-2xl font-semibold text-white mb-4">Introduction to Orus</h2>
               <p className="text-charcoal-300 mb-4 leading-relaxed">
-                Orus is a systems programming language designed for performance, safety, and productivity. 
-                It combines the low-level control of languages like C and C++ with the safety and 
-                expressiveness of modern languages.
+                Orus is an experimental interpreted language influenced by modern scripting languages and Rust-like syntax. 
+                This guide covers the features available in version 0.7.0 and serves both as a tutorial and reference.
               </p>
               <p className="text-charcoal-300 mb-6 leading-relaxed">
-                Key features include zero-cost abstractions, memory safety without garbage collection, 
-                fearless concurrency, and a rich type system that prevents common programming errors 
-                at compile time.
+                Key features include immutability by default, pattern matching, generics with constraints, 
+                module system, error handling with try/catch, and a rich set of built-in functions 
+                for common programming tasks.
               </p>
               
               <div className="flex flex-wrap gap-3">
                 <span className="px-3 py-1 bg-gold-500/20 text-gold-400 rounded-full text-sm font-medium border border-gold-500/30">
-                  Memory Safe
+                  Rust-inspired
                 </span>
                 <span className="px-3 py-1 bg-gold-500/20 text-gold-400 rounded-full text-sm font-medium border border-gold-500/30">
-                  Zero Cost
+                  Pattern Matching
                 </span>
                 <span className="px-3 py-1 bg-gold-500/20 text-gold-400 rounded-full text-sm font-medium border border-gold-500/30">
-                  Concurrent
+                  Generics
                 </span>
                 <span className="px-3 py-1 bg-gold-500/20 text-gold-400 rounded-full text-sm font-medium border border-gold-500/30">
-                  Fast
+                  Interpreted
                 </span>
               </div>
             </Card>
@@ -153,9 +157,9 @@ fn main() {
 
             {/* Code Example */}
             <Card className="bg-charcoal-800/50 border-charcoal-700 p-6 mb-8">
-              <h3 className="text-xl font-semibold text-white mb-4">Example: Person Struct</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Example: Orus Language Features</h3>
               <p className="text-charcoal-400 mb-4">
-                Here's a simple example demonstrating Orus syntax, structs, methods, and pattern matching:
+                Here's an overview of key Orus syntax including variables, structs, methods, and pattern matching:
               </p>
               
               <div className="bg-charcoal-900 rounded-lg p-4 overflow-x-auto">

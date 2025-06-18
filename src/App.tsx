@@ -8,6 +8,7 @@ import Navigation from "./components/Navigation";
 import Home from "./pages/Home";
 import Install from "./pages/Install";
 import Docs from "./pages/Docs";
+import DocContent from "./pages/DocContent";
 import Playground from "./pages/Playground";
 import Roadmap from "./pages/Roadmap";
 import NotFound from "./pages/NotFound";
@@ -26,7 +27,7 @@ const App = () => (
             <Route path="/" element={<Home />} />
             <Route path="/install" element={<Install />} />
             <Route path="/docs" element={<Docs />} />
-            <Route path="/docs/*" element={<Docs />} />
+            <Route path="/docs/:section" element={<DocContent />} />
             <Route path="/play" element={<Playground />} />
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="*" element={<NotFound />} />

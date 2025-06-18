@@ -14,7 +14,7 @@ const Home = () => {
     {
       icon: Shield,
       title: 'Memory Safe',
-      description: 'Rust-inspired ownership model prevents common programming errors at compile time.',
+      description: 'Ownership model prevents common programming errors at compile time.',
     },
     {
       icon: Cpu,
@@ -29,14 +29,20 @@ const Home = () => {
   ];
 
   const codeExample = `fn main() {
-    let message = "Hello, Orus!";
-    println!("{}", message);
-    
-    let numbers = vec![1, 2, 3, 4, 5];
-    let sum: i32 = numbers.iter().sum();
-    
-    println!("Sum: {}", sum);
-}`;
+    print("Hello, Orus!")
+}
+
+fn add(a: i32, b: i32) -> i32 {
+    return a + b
+}
+
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let p = Point{ x: 1, y: 2 }
+print(p.x)`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-charcoal-950">
@@ -47,9 +53,11 @@ const Home = () => {
           <div className="text-center animate-fade-in">
             {/* Logo */}
             <div className="flex justify-center mb-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-gold-400 to-gold-600 rounded-2xl flex items-center justify-center shadow-2xl">
-                <span className="text-charcoal-950 font-bold text-4xl">O</span>
-              </div>
+              <img 
+                src="/orus.png" 
+                alt="Orus Language Logo" 
+                className="w-20 h-20 object-contain"
+              />
             </div>
             
             {/* Hero Title */}
@@ -65,8 +73,8 @@ const Home = () => {
             
             {/* Hero Tagline */}
             <p className="text-xl lg:text-2xl text-charcoal-400 max-w-3xl mx-auto mb-12 leading-relaxed">
-              A systems programming language that combines the performance of Rust 
-              with the elegance of modern language design. Build fast, safe, and concurrent applications.
+              An experimental interpreted language influenced by modern scripting languages 
+              and Rust-like syntax. Build fast, safe, and expressive applications.
             </p>
             
             {/* CTA Buttons */}
