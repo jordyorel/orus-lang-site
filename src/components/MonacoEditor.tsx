@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
 
 interface MonacoEditorProps {
@@ -21,52 +21,90 @@ const MonacoEditor = ({
   forceDarkMode = false
 }: MonacoEditorProps) => {
   const editorRef = useRef<any>(null);
+  const [isEditorReady, setIsEditorReady] = useState(false);
+  const [editorError, setEditorError] = useState<string | null>(null);
+
+  console.log('MonacoEditor rendering - value length:', value.length, 'language:', language);
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
     console.log('Monaco editor mounted successfully');
     editorRef.current = monaco;
+    setIsEditorReady(true);
     
-    // Configure Orus language (using Rust syntax)
-    if (!monaco.languages.getLanguages().find((lang: any) => lang.id === 'orus')) {
-      monaco.languages.register({ id: 'orus' });
-      monaco.languages.setMonarchTokensProvider('orus', {
-        tokenizer: {
-          root: [
-            [/\b(fn|let|mut|if|else|match|loop|while|for|in|return|break|continue|struct|enum|impl|trait|use|mod|pub|const|static)\b/, 'keyword'],
-            [/\b(i8|i16|i32|i64|u8|u16|u32|u64|f32|f64|bool|char|str|String|Vec|Option|Result)\b/, 'type'],
-            [/".*?"/, 'string'],
-            [/'.'/, 'string'],
-            [/\d+/, 'number'],
-            [/\/\/.*$/, 'comment'],
-            [/\/\*[\s\S]*?\*\//, 'comment'],
-          ]
+    try {
+      // Configure Orus language (using Rust syntax)
+      if (!monaco.languages.getLanguages().find((lang: any) => lang.id === 'orus')) {
+        monaco.languages.register({ id: 'orus' });
+        monaco.languages.setMonarchTokensProvider('orus', {
+          tokenizer: {
+            root: [
+              [/\b(fn|let|mut|if|else|match|loop|while|for|in|return|break|continue|struct|enum|impl|trait|use|mod|pub|const|static)\b/, 'keyword'],
+              [/\b(i8|i16|i32|i64|u8|u16|u32|u64|f32|f64|bool|char|str|String|Vec|Option|Result)\b/, 'type'],
+              [/".*?"/, 'string'],
+              [/'.'/, 'string'],
+              [/\d+/, 'number'],
+              [/\/\/.*$/, 'comment'],
+              [/\/\*[\s\S]*?\*\//, 'comment'],
+            ]
+          }
+        });
+      }
+
+      // Set dark theme for playground
+      monaco.editor.defineTheme('rust-playground-dark', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+          { token: 'comment', foreground: '#6A9955' },
+          { token: 'keyword', foreground: '#C586C0' },
+          { token: 'string', foreground: '#CE9178' },
+          { token: 'number', foreground: '#B5CEA8' },
+          { token: 'type', foreground: '#4EC9B0' },
+        ],
+        colors: {
+          'editor.background': '#1E1E1E',
+          'editor.foreground': '#D4D4D4',
+          'editorLineNumber.foreground': '#858585',
+          'editor.selectionBackground': '#264F78',
+          'editor.lineHighlightBackground': '#2A2D2E',
+          'editorCursor.foreground': '#AEAFAD',
         }
       });
+      
+      monaco.editor.setTheme('rust-playground-dark');
+    } catch (error) {
+      console.error('Error configuring Monaco editor:', error);
+      setEditorError('Failed to configure editor');
     }
-
-    // Set dark theme for playground
-    monaco.editor.defineTheme('rust-playground-dark', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [
-        { token: 'comment', foreground: '#6A9955' },
-        { token: 'keyword', foreground: '#C586C0' },
-        { token: 'string', foreground: '#CE9178' },
-        { token: 'number', foreground: '#B5CEA8' },
-        { token: 'type', foreground: '#4EC9B0' },
-      ],
-      colors: {
-        'editor.background': '#1E1E1E',
-        'editor.foreground': '#D4D4D4',
-        'editorLineNumber.foreground': '#858585',
-        'editor.selectionBackground': '#264F78',
-        'editor.lineHighlightBackground': '#2A2D2E',
-        'editorCursor.foreground': '#AEAFAD',
-      }
-    });
-    
-    monaco.editor.setTheme('rust-playground-dark');
   };
+
+  const handleEditorChange = (value: string | undefined) => {
+    console.log('Monaco editor content changed, length:', value?.length || 0);
+    onChange(value || '');
+  };
+
+  const handleEditorValidation = (markers: any[]) => {
+    if (markers.length > 0) {
+      console.log('Monaco editor validation markers:', markers);
+    }
+  };
+
+  // Fallback to textarea if Monaco fails to load
+  if (editorError) {
+    console.log('Monaco editor failed, showing textarea fallback');
+    return (
+      <div className="h-full w-full">
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full h-full bg-charcoal-900 text-charcoal-200 font-mono text-sm p-4 resize-none border-none outline-none"
+          style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace' }}
+          readOnly={readOnly}
+          placeholder="Enter your Orus code here..."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="h-full w-full">
@@ -75,13 +113,15 @@ const MonacoEditor = ({
         language={language === 'orus' ? 'rust' : language}
         theme="rust-playground-dark"
         value={value}
-        onChange={(value) => onChange(value || '')}
+        onChange={handleEditorChange}
         onMount={handleEditorDidMount}
+        onValidate={handleEditorValidation}
         loading={
           <div className="flex items-center justify-center h-full bg-charcoal-900 text-charcoal-200">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500 mx-auto mb-2"></div>
               <p className="text-sm">Loading editor...</p>
+              <p className="text-xs text-charcoal-400 mt-2">If this takes too long, try refreshing the page</p>
             </div>
           </div>
         }
