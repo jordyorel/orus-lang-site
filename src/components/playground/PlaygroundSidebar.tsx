@@ -19,8 +19,8 @@ const PlaygroundSidebar = ({
 }: PlaygroundSidebarProps) => {
   return (
     <>
-      {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden border-r border-charcoal-300 flex-shrink-0 bg-charcoal-50`}>
+      {/* Sidebar - Always dark */}
+      <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden border-r border-charcoal-600 flex-shrink-0 bg-charcoal-900`}>
         <div className="h-full p-4">
           <ExamplesSidebar 
             examples={examples} 
@@ -29,13 +29,13 @@ const PlaygroundSidebar = ({
         </div>
       </div>
 
-      {/* Sidebar Toggle */}
-      <div className="flex flex-col justify-center flex-shrink-0 bg-charcoal-100">
+      {/* Sidebar Toggle - Always dark */}
+      <div className="flex flex-col justify-center flex-shrink-0 bg-charcoal-800">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="h-12 w-8 rounded-none border-y border-r border-charcoal-300 text-charcoal-600 hover:text-charcoal-800 hover:bg-charcoal-200"
+          className="h-12 w-8 rounded-none border-y border-r border-charcoal-600 text-charcoal-400 hover:text-charcoal-200 hover:bg-charcoal-700"
         >
           {sidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
         </Button>

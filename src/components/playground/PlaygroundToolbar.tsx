@@ -22,13 +22,13 @@ const PlaygroundToolbar = ({
           {isRunning ? 'Running...' : 'Run'}
         </Button>
         
-        <div className="text-charcoal-400 dark:text-charcoal-500 text-sm">|</div>
+        <div className="text-charcoal-500 text-sm">|</div>
         
         <Button
           variant="ghost"
           size="sm"
           onClick={onShare}
-          className="text-charcoal-700 hover:text-charcoal-900 hover:bg-charcoal-200 dark:text-charcoal-300 dark:hover:text-charcoal-100 dark:hover:bg-charcoal-700 text-sm px-3 py-1.5"
+          className="text-charcoal-300 hover:text-charcoal-100 hover:bg-charcoal-700 text-sm px-3 py-1.5"
         >
           <Share size={14} className="mr-1.5" />
           Share
@@ -38,7 +38,7 @@ const PlaygroundToolbar = ({
           variant="ghost"
           size="sm"
           onClick={onExport}
-          className="text-charcoal-700 hover:text-charcoal-900 hover:bg-charcoal-200 dark:text-charcoal-300 dark:hover:text-charcoal-100 dark:hover:bg-charcoal-700 text-sm px-3 py-1.5"
+          className="text-charcoal-300 hover:text-charcoal-100 hover:bg-charcoal-700 text-sm px-3 py-1.5"
         >
           <Copy size={14} className="mr-1.5" />
           Copy URL
@@ -49,7 +49,7 @@ const PlaygroundToolbar = ({
         <Button
           variant="ghost"
           size="sm"
-          className="text-charcoal-700 hover:text-charcoal-900 hover:bg-charcoal-200 dark:text-charcoal-300 dark:hover:text-charcoal-100 dark:hover:bg-charcoal-700 text-sm px-3 py-1.5"
+          className="text-charcoal-300 hover:text-charcoal-100 hover:bg-charcoal-700 text-sm px-3 py-1.5"
         >
           <BookOpen size={14} className="mr-1.5" />
           Help
@@ -59,7 +59,7 @@ const PlaygroundToolbar = ({
           variant="ghost"
           size="sm"
           onClick={onReset}
-          className="text-charcoal-700 hover:text-charcoal-900 hover:bg-charcoal-200 dark:text-charcoal-300 dark:hover:text-charcoal-100 dark:hover:bg-charcoal-700 text-sm px-3 py-1.5"
+          className="text-charcoal-300 hover:text-charcoal-100 hover:bg-charcoal-700 text-sm px-3 py-1.5"
         >
           <RotateCcw size={14} className="mr-1.5" />
           Reset

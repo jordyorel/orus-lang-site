@@ -23,20 +23,20 @@ const Playground = () => {
   } = usePlayground();
 
   return (
-    <div className="h-screen bg-charcoal-50 dark:bg-charcoal-950 flex flex-col">
-      {/* Header - Orus style */}
-      <div className="bg-charcoal-900 dark:bg-charcoal-950 text-white px-4 py-2 border-b border-charcoal-700 dark:border-charcoal-800">
+    <div className="h-screen bg-charcoal-950 flex flex-col">
+      {/* Header - Always dark */}
+      <div className="bg-charcoal-900 text-white px-4 py-2 border-b border-charcoal-800">
         <div className="flex items-center justify-between">
           <PlaygroundHeader />
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" className="text-charcoal-300 hover:text-white hover:bg-charcoal-800 dark:hover:bg-charcoal-700">
+            <Button variant="ghost" size="sm" className="text-charcoal-300 hover:text-white hover:bg-charcoal-700">
               <Settings size={16} />
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - Always dark */}
       <div className="flex-1 flex overflow-hidden min-h-0">
         <PlaygroundSidebar
           sidebarOpen={sidebarOpen}
