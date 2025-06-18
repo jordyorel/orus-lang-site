@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import PlaygroundHeader from '@/components/playground/PlaygroundHeader';
 import ExamplesSidebar from '@/components/playground/ExamplesSidebar';
@@ -145,14 +144,14 @@ fn main() {
   return (
     <div className="h-screen bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-charcoal-950 flex flex-col">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-charcoal-700">
+      <div className="px-6 py-3 border-b border-charcoal-700 flex-shrink-0">
         <PlaygroundHeader />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-h-0">
         {/* Sidebar */}
-        <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden border-r border-charcoal-700`}>
+        <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden border-r border-charcoal-700 flex-shrink-0`}>
           <div className="h-full p-4">
             <ExamplesSidebar 
               examples={examples} 
@@ -162,7 +161,7 @@ fn main() {
         </div>
 
         {/* Sidebar Toggle */}
-        <div className="flex flex-col justify-center">
+        <div className="flex flex-col justify-center flex-shrink-0">
           <Button
             variant="ghost"
             size="sm"
@@ -174,9 +173,9 @@ fn main() {
         </div>
 
         {/* Editor Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0">
           {/* Toolbar */}
-          <div className="px-6 py-4 border-b border-charcoal-700">
+          <div className="px-6 py-3 border-b border-charcoal-700 flex-shrink-0">
             <PlaygroundToolbar
               isRunning={isRunning}
               onRun={runCode}
@@ -186,21 +185,21 @@ fn main() {
             />
           </div>
 
-          {/* Code Editor and Output */}
-          <div className="flex-1 flex">
+          {/* Code Editor and Output - Main playground area */}
+          <div className="flex-1 flex min-h-0">
             {/* Code Editor */}
-            <div className="flex-1 border-r border-charcoal-700">
+            <div className="flex-1 border-r border-charcoal-700 min-w-0">
               <CodeEditor code={code} onChange={setCode} />
             </div>
 
             {/* Output Panel */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <OutputPanel output={output} isRunning={isRunning} />
             </div>
           </div>
 
-          {/* Tips Section */}
-          <div className="p-6 border-t border-charcoal-700">
+          {/* Tips Section - Reduced size */}
+          <div className="px-6 py-3 border-t border-charcoal-700 flex-shrink-0">
             <TipsCard />
           </div>
         </div>
