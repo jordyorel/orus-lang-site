@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { sanitizeUrlParameter, secureClipboardWrite } from '@/utils/security';
 
@@ -41,8 +41,6 @@ Doubled: [2, 4, 6, 8, 10]
 Process finished with exit code 0`;
 
 export const usePlayground = () => {
-  console.log('usePlayground hook initializing');
-  
   const [code, setCode] = useState(DEFAULT_CODE);
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
@@ -50,11 +48,9 @@ export const usePlayground = () => {
 
   // Load code from URL parameter on mount with security validation
   useEffect(() => {
-    console.log('usePlayground: Checking URL parameters');
     const urlParams = new URLSearchParams(window.location.search);
     const codeParam = urlParams.get('code');
     if (codeParam) {
-      console.log('usePlayground: Found code parameter');
       const sanitizedCode = sanitizeUrlParameter(codeParam);
       if (sanitizedCode) {
         setCode(sanitizedCode);
@@ -72,32 +68,18 @@ export const usePlayground = () => {
     }
   }, []);
 
-  const runCode = async () => {
-    console.log('usePlayground: Running code');
+  const runCode = useCallback(async () => {
     setIsRunning(true);
-    setOutput(''); // Clear previous output
+    setOutput('');
     
-    try {
-      // Simulate code execution
-      setTimeout(() => {
-        console.log('usePlayground: Code execution completed');
-        setOutput(EXAMPLE_OUTPUT);
-        setIsRunning(false);
-      }, 1500);
-    } catch (error) {
-      console.error('usePlayground: Code execution error:', error);
+    // Faster simulation
+    setTimeout(() => {
+      setOutput(EXAMPLE_OUTPUT);
       setIsRunning(false);
-      setOutput('Error: Failed to execute code');
-      toast({
-        title: "Execution Error",
-        description: "An error occurred while running the code.",
-        variant: "destructive",
-      });
-    }
-  };
+    }, 800);
+  }, []);
 
-  const resetCode = () => {
-    console.log('usePlayground: Resetting code');
+  const resetCode = useCallback(() => {
     setCode(`fn main() {
     println!("Hello, Orus!");
 }`);
@@ -106,10 +88,9 @@ export const usePlayground = () => {
       title: "Code Reset",
       description: "The playground has been reset to the default code.",
     });
-  };
+  }, []);
 
-  const shareCode = async () => {
-    console.log('usePlayground: Sharing code');
+  const shareCode = useCallback(async () => {
     try {
       const shareUrl = `${window.location.origin}${window.location.pathname}?code=${encodeURIComponent(code)}`;
       const success = await secureClipboardWrite(shareUrl);
@@ -123,17 +104,15 @@ export const usePlayground = () => {
         throw new Error('Clipboard write failed');
       }
     } catch (error) {
-      console.error('usePlayground: Share error:', error);
       toast({
         title: "Share Failed",
         description: "Failed to create share link. Please try copying the URL manually.",
         variant: "destructive",
       });
     }
-  };
+  }, [code]);
 
-  const exportCode = async () => {
-    console.log('usePlayground: Exporting code');
+  const exportCode = useCallback(async () => {
     try {
       const success = await secureClipboardWrite(code);
       
@@ -161,43 +140,37 @@ export const usePlayground = () => {
         });
       }
     } catch (error) {
-      console.error('usePlayground: Export error:', error);
       toast({
         title: "Export Failed",
         description: "Failed to export code. Please try again.",
         variant: "destructive",
       });
     }
-  };
+  }, [code]);
 
-  const showHelp = () => {
-    console.log('usePlayground: Showing help');
+  const showHelp = useCallback(() => {
     toast({
       title: "Orus Playground Help",
       description: "Use the examples on the left to get started. Click Run to execute your code. Use Share to copy a link or Copy URL to copy just the code.",
     });
-  };
+  }, []);
 
-  const clearOutput = () => {
-    console.log('usePlayground: Clearing output');
+  const clearOutput = useCallback(() => {
     setOutput('');
     toast({
       title: "Output Cleared",
       description: "The output panel has been cleared.",
     });
-  };
+  }, []);
 
-  const handleExampleSelect = (exampleCode: string) => {
-    console.log('usePlayground: Example selected');
+  const handleExampleSelect = useCallback((exampleCode: string) => {
     setCode(exampleCode);
     setOutput('');
     toast({
       title: "Example Loaded",
       description: "The example code has been loaded into the editor.",
     });
-  };
-
-  console.log('usePlayground: Hook state - code length:', code.length, 'isRunning:', isRunning);
+  }, []);
 
   return {
     code,
