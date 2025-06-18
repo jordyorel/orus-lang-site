@@ -27,7 +27,7 @@ const PlaygroundContent = ({
   return (
     <>
       {/* Toolbar */}
-      <div className="bg-gray-100 border-b border-gray-300 px-4 py-2">
+      <div className="bg-charcoal-100 border-b border-charcoal-300 px-4 py-2">
         <PlaygroundToolbar
           isRunning={isRunning}
           onRun={onRun}
@@ -40,7 +40,7 @@ const PlaygroundContent = ({
       {/* Editor and Output Area */}
       <div className="flex-1 flex min-w-0">
         {/* Code Editor */}
-        <div className="flex-1 border-r border-gray-300 min-w-0">
+        <div className="flex-1 border-r border-charcoal-300 min-w-0">
           <CodeEditor code={code} onChange={onChange} />
         </div>
 

@@ -23,13 +23,13 @@ const Playground = () => {
   } = usePlayground();
 
   return (
-    <div className="h-screen bg-white flex flex-col">
-      {/* Header - Rust playground style */}
-      <div className="bg-gray-800 text-white px-4 py-2 border-b border-gray-600">
+    <div className="h-screen bg-charcoal-50 flex flex-col">
+      {/* Header - Orus style */}
+      <div className="bg-charcoal-900 text-white px-4 py-2 border-b border-charcoal-700">
         <div className="flex items-center justify-between">
           <PlaygroundHeader />
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-700">
+            <Button variant="ghost" size="sm" className="text-charcoal-300 hover:text-white hover:bg-charcoal-800">
               <Settings size={16} />
             </Button>
           </div>

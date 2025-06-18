@@ -5,7 +5,7 @@ const PlaygroundHeader = () => {
       <h1 className="text-xl font-bold text-white">
         Orus Playground
       </h1>
-      <div className="text-sm text-gray-300">
+      <div className="text-sm text-gold-400">
         Stable channel
       </div>
     </div>

@@ -16,19 +16,19 @@ const PlaygroundToolbar = ({
         <Button
           onClick={onRun}
           disabled={isRunning}
-          className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-1.5 text-sm"
+          className="bg-gold-600 hover:bg-gold-700 text-charcoal-900 font-medium px-4 py-1.5 text-sm"
         >
           <Play size={14} className="mr-1.5" />
           {isRunning ? 'Running...' : 'Run'}
         </Button>
         
-        <div className="text-gray-400 text-sm">|</div>
+        <div className="text-charcoal-400 text-sm">|</div>
         
         <Button
           variant="ghost"
           size="sm"
           onClick={onShare}
-          className="text-gray-700 hover:text-gray-900 hover:bg-gray-200 text-sm px-3 py-1.5"
+          className="text-charcoal-700 hover:text-charcoal-900 hover:bg-charcoal-200 text-sm px-3 py-1.5"
         >
           <Share size={14} className="mr-1.5" />
           Share
@@ -38,7 +38,7 @@ const PlaygroundToolbar = ({
           variant="ghost"
           size="sm"
           onClick={onExport}
-          className="text-gray-700 hover:text-gray-900 hover:bg-gray-200 text-sm px-3 py-1.5"
+          className="text-charcoal-700 hover:text-charcoal-900 hover:bg-charcoal-200 text-sm px-3 py-1.5"
         >
           <Copy size={14} className="mr-1.5" />
           Copy URL
@@ -49,7 +49,7 @@ const PlaygroundToolbar = ({
         <Button
           variant="ghost"
           size="sm"
-          className="text-gray-700 hover:text-gray-900 hover:bg-gray-200 text-sm px-3 py-1.5"
+          className="text-charcoal-700 hover:text-charcoal-900 hover:bg-charcoal-200 text-sm px-3 py-1.5"
         >
           <BookOpen size={14} className="mr-1.5" />
           Help
@@ -59,7 +59,7 @@ const PlaygroundToolbar = ({
           variant="ghost"
           size="sm"
           onClick={onReset}
-          className="text-gray-700 hover:text-gray-900 hover:bg-gray-200 text-sm px-3 py-1.5"
+          className="text-charcoal-700 hover:text-charcoal-900 hover:bg-charcoal-200 text-sm px-3 py-1.5"
         >
           <RotateCcw size={14} className="mr-1.5" />
           Reset
