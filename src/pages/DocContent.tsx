@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import DocsSidebar from '@/components/DocsSidebar';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Play } from 'lucide-react';
 
 const DocContent = () => {
   const { section } = useParams();
@@ -14,6 +14,7 @@ const DocContent = () => {
       case 'hello-world':
         return {
           title: 'Hello World',
+          nextSection: 'syntax',
           content: (
             <div className="space-y-6">
               <p className="text-charcoal-300 leading-relaxed">
@@ -39,6 +40,7 @@ const DocContent = () => {
       case 'syntax':
         return {
           title: 'Basic Syntax',
+          nextSection: 'variables',
           content: (
             <div className="space-y-6">
               <h3 className="text-xl font-semibold text-white">Variables and Mutability</h3>
@@ -77,6 +79,7 @@ This is a block comment.
       case 'variables':
         return {
           title: 'Variables & Types',
+          nextSection: 'functions',
           content: (
             <div className="space-y-6">
               <h3 className="text-xl font-semibold text-white">Primitive Types</h3>
@@ -117,6 +120,7 @@ let c: i32 = big as i32`}
       case 'functions':
         return {
           title: 'Functions',
+          nextSection: 'control-flow',
           content: (
             <div className="space-y-6">
               <p className="text-charcoal-300 leading-relaxed">
@@ -145,6 +149,7 @@ fn greet(name: string) {    // no return value
       case 'control-flow':
         return {
           title: 'Control Flow',
+          nextSection: 'pattern-matching',
           content: (
             <div className="space-y-6">
               <h3 className="text-xl font-semibold text-white">Conditionals</h3>
@@ -186,6 +191,7 @@ continue   // next iteration`}
       case 'pattern-matching':
         return {
           title: 'Pattern Matching',
+          nextSection: 'arrays',
           content: (
             <div className="space-y-6">
               <p className="text-charcoal-300 leading-relaxed">
@@ -212,6 +218,7 @@ continue   // next iteration`}
       case 'arrays':
         return {
           title: 'Arrays & Slicing',
+          nextSection: 'structs',
           content: (
             <div className="space-y-6">
               <h3 className="text-xl font-semibold text-white">Fixed Arrays</h3>
@@ -260,6 +267,7 @@ let part = nums[..]    // entire array`}
       case 'structs':
         return {
           title: 'Structs & Methods',
+          nextSection: 'generics',
           content: (
             <div className="space-y-6">
               <h3 className="text-xl font-semibold text-white">Defining Structs</h3>
@@ -309,6 +317,7 @@ p.move_by(3, 4)`}
       case 'generics':
         return {
           title: 'Generics',
+          nextSection: 'modules',
           content: (
             <div className="space-y-6">
               <p className="text-charcoal-300 leading-relaxed">
@@ -356,6 +365,7 @@ fn min<T: Comparable>(a: T, b: T) -> T {
       case 'modules':
         return {
           title: 'Modules',
+          nextSection: 'error-handling',
           content: (
             <div className="space-y-6">
               <p className="text-charcoal-300 leading-relaxed">
@@ -401,6 +411,7 @@ fn main() {
       case 'error-handling':
         return {
           title: 'Error Handling',
+          nextSection: 'builtins',
           content: (
             <div className="space-y-6">
               <p className="text-charcoal-300 leading-relaxed">
@@ -427,6 +438,7 @@ fn main() {
       case 'builtins':
         return {
           title: 'Built-in Functions',
+          nextSection: 'best-practices',
           content: (
             <div className="space-y-6">
               <p className="text-charcoal-300 leading-relaxed">
@@ -470,6 +482,7 @@ print(len(arr))`}
       case 'best-practices':
         return {
           title: 'Best Practices',
+          nextSection: null,
           content: (
             <div className="space-y-6">
               <h3 className="text-xl font-semibold text-white">Naming Conventions</h3>
@@ -495,6 +508,7 @@ print(len(arr))`}
       default:
         return {
           title: 'Documentation',
+          nextSection: null,
           content: (
             <div className="text-center py-12">
               <p className="text-charcoal-400 text-lg">
@@ -534,7 +548,17 @@ print(len(arr))`}
             
             {/* Content */}
             <div className="animate-fade-in">
-              <h1 className="text-4xl font-bold text-white mb-8">{docData.title}</h1>
+              <div className="flex items-center justify-between mb-8">
+                <h1 className="text-4xl font-bold text-white">{docData.title}</h1>
+                
+                {/* Try in Playground Button */}
+                <Link to="/play">
+                  <Button className="bg-gold-500 hover:bg-gold-600 text-charcoal-950">
+                    <Play size={16} className="mr-2" />
+                    Try in Playground
+                  </Button>
+                </Link>
+              </div>
               
               <Card className="bg-charcoal-800/50 border-charcoal-700 p-8">
                 {docData.content}
@@ -549,12 +573,14 @@ print(len(arr))`}
                   </Button>
                 </Link>
                 
-                <Link to="/play">
-                  <Button className="bg-gold-500 hover:bg-gold-600 text-charcoal-950">
-                    Try in Playground
-                    <ArrowRight size={16} className="ml-2" />
-                  </Button>
-                </Link>
+                {docData.nextSection && (
+                  <Link to={`/docs/${docData.nextSection}`}>
+                    <Button className="bg-gold-500 hover:bg-gold-600 text-charcoal-950">
+                      Next
+                      <ArrowRight size={16} className="ml-2" />
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
