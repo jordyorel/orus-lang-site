@@ -1,7 +1,6 @@
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import Editor from '@monaco-editor/react';
-import { getMonacoInstance, setMonacoInstance, getEditorInstance, setEditorInstance } from '@/utils/monacoCache';
 
 interface MonacoEditorProps {
   value: string;
@@ -22,23 +21,10 @@ const MonacoEditor = ({
   forceDarkMode = false
 }: MonacoEditorProps) => {
   const editorRef = useRef<any>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    // Check if we have a cached Monaco instance
-    const cachedMonaco = getMonacoInstance();
-    if (cachedMonaco) {
-      setIsReady(true);
-    }
-  }, []);
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
     console.log('Monaco editor mounted');
     editorRef.current = editor;
-    setMonacoInstance(monaco);
-    setEditorInstance(editor);
-    setIsReady(true);
     
     // Configure editor
     try {
@@ -56,7 +42,7 @@ const MonacoEditor = ({
   };
 
   return (
-    <div ref={containerRef} className="h-full w-full">
+    <div className="h-full w-full">
       <Editor
         height={height}
         language="rust"
