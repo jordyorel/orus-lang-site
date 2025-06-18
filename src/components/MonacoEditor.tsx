@@ -22,17 +22,10 @@ const MonacoEditor = ({
 }: MonacoEditorProps) => {
   const editorRef = useRef<any>(null);
 
-  const handleEditorDidMount = (editor: any, monaco: any) => {
-    console.log('Monaco editor mounted');
+  const handleEditorDidMount = (editor: any) => {
+    console.log('Monaco editor mounted successfully');
     editorRef.current = editor;
-    
-    // Configure editor
-    try {
-      monaco.editor.setTheme('vs-dark');
-      editor.focus();
-    } catch (error) {
-      console.warn('Error configuring Monaco:', error);
-    }
+    editor.focus();
   };
 
   const handleEditorChange = (value: string | undefined) => {
@@ -45,7 +38,8 @@ const MonacoEditor = ({
     <div className="h-full w-full">
       <Editor
         height={height}
-        language="rust"
+        defaultLanguage="javascript"
+        language="javascript"
         theme="vs-dark"
         value={value}
         onChange={handleEditorChange}
@@ -53,7 +47,7 @@ const MonacoEditor = ({
         loading={
           <div className="flex items-center justify-center h-full bg-gray-900 text-gray-200">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gold-500 mx-auto mb-2"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-yellow-500 mx-auto mb-2"></div>
               <p className="text-xs">Loading editor...</p>
             </div>
           </div>
@@ -67,8 +61,7 @@ const MonacoEditor = ({
           lineNumbers: 'on',
           scrollBeyondLastLine: false,
           automaticLayout: true,
-          wordWrap: 'on',
-          padding: { top: 16, bottom: 16 }
+          wordWrap: 'on'
         }}
       />
     </div>
