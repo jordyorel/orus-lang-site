@@ -1,13 +1,13 @@
 
 const PlaygroundHeader = () => {
   return (
-    <div className="animate-fade-in">
-      <h1 className="text-3xl font-bold text-white mb-2">
-        <span className="text-gold-400">Orus</span> Playground
+    <div className="flex items-center space-x-4">
+      <h1 className="text-xl font-bold text-white">
+        Orus Playground
       </h1>
-      <p className="text-charcoal-400">
-        Write, run, and experiment with Orus code directly in your browser.
-      </p>
+      <div className="text-sm text-gray-300">
+        Stable channel
+      </div>
     </div>
   );
 };

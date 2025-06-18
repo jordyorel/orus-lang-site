@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { Play, Download, Share, RotateCcw } from 'lucide-react';
+import { Play, Download, Share, RotateCcw, Copy, BookOpen } from 'lucide-react';
 import { PlaygroundToolbarProps } from '@/types/playground';
 
 const PlaygroundToolbar = ({ 
@@ -11,23 +11,37 @@ const PlaygroundToolbar = ({
   onExport 
 }: PlaygroundToolbarProps) => {
   return (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center justify-between">
       <div className="flex items-center space-x-2">
         <Button
           onClick={onRun}
           disabled={isRunning}
-          className="bg-gold-500 hover:bg-gold-600 text-charcoal-950 font-semibold"
+          className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-1.5 text-sm"
         >
-          <Play size={16} className="mr-2" />
+          <Play size={14} className="mr-1.5" />
           {isRunning ? 'Running...' : 'Run'}
         </Button>
+        
+        <div className="text-gray-400 text-sm">|</div>
+        
         <Button
-          variant="outline"
-          onClick={onReset}
-          className="border-charcoal-600 text-charcoal-300 hover:text-gold-400 hover:border-gold-500/50"
+          variant="ghost"
+          size="sm"
+          onClick={onShare}
+          className="text-gray-700 hover:text-gray-900 hover:bg-gray-200 text-sm px-3 py-1.5"
         >
-          <RotateCcw size={16} className="mr-2" />
-          Reset
+          <Share size={14} className="mr-1.5" />
+          Share
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onExport}
+          className="text-gray-700 hover:text-gray-900 hover:bg-gray-200 text-sm px-3 py-1.5"
+        >
+          <Copy size={14} className="mr-1.5" />
+          Copy URL
         </Button>
       </div>
       
@@ -35,20 +49,20 @@ const PlaygroundToolbar = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={onShare}
-          className="text-charcoal-400 hover:text-gold-400"
+          className="text-gray-700 hover:text-gray-900 hover:bg-gray-200 text-sm px-3 py-1.5"
         >
-          <Share size={16} className="mr-2" />
-          Share
+          <BookOpen size={14} className="mr-1.5" />
+          Help
         </Button>
+        
         <Button
           variant="ghost"
           size="sm"
-          onClick={onExport}
-          className="text-charcoal-400 hover:text-gold-400"
+          onClick={onReset}
+          className="text-gray-700 hover:text-gray-900 hover:bg-gray-200 text-sm px-3 py-1.5"
         >
-          <Download size={16} className="mr-2" />
-          Export
+          <RotateCcw size={14} className="mr-1.5" />
+          Reset
         </Button>
       </div>
     </div>

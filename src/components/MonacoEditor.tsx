@@ -15,7 +15,7 @@ const MonacoEditor = ({
   value, 
   onChange, 
   language = 'rust',
-  theme = 'vs-dark',
+  theme = 'vs',
   height = '400px',
   readOnly = false 
 }: MonacoEditorProps) => {
@@ -24,7 +24,7 @@ const MonacoEditor = ({
   const handleEditorDidMount = (editor: any, monaco: any) => {
     editorRef.current = monaco;
     
-    // Configure Orus language (using Rust syntax for now)
+    // Configure Orus language (using Rust syntax)
     monaco.languages.register({ id: 'orus' });
     monaco.languages.setMonarchTokensProvider('orus', {
       tokenizer: {
@@ -40,36 +40,36 @@ const MonacoEditor = ({
       }
     });
 
-    // Set custom theme
-    monaco.editor.defineTheme('orus-dark', {
-      base: 'vs-dark',
+    // Set custom theme similar to Rust playground
+    monaco.editor.defineTheme('rust-playground', {
+      base: 'vs',
       inherit: true,
       rules: [
-        { token: 'comment', foreground: '#6B7280' },
-        { token: 'keyword', foreground: '#F59E0B' },
-        { token: 'string', foreground: '#10B981' },
-        { token: 'number', foreground: '#3B82F6' },
-        { token: 'type', foreground: '#8B5CF6' },
+        { token: 'comment', foreground: '#008000' },
+        { token: 'keyword', foreground: '#0000FF' },
+        { token: 'string', foreground: '#A31515' },
+        { token: 'number', foreground: '#098658' },
+        { token: 'type', foreground: '#2B91AF' },
       ],
       colors: {
-        'editor.background': '#1A1A1A',
-        'editor.foreground': '#E5E7EB',
-        'editorLineNumber.foreground': '#6B7280',
-        'editor.selectionBackground': '#F59E0B33',
-        'editor.lineHighlightBackground': '#F59E0B0A',
-        'editorCursor.foreground': '#F59E0B',
+        'editor.background': '#FFFFFF',
+        'editor.foreground': '#000000',
+        'editorLineNumber.foreground': '#999999',
+        'editor.selectionBackground': '#ADD6FF',
+        'editor.lineHighlightBackground': '#F5F5F5',
+        'editorCursor.foreground': '#000000',
       }
     });
     
-    monaco.editor.setTheme('orus-dark');
+    monaco.editor.setTheme('rust-playground');
   };
 
   return (
-    <div className="h-full w-full border border-charcoal-700 rounded-lg overflow-hidden">
+    <div className="h-full w-full">
       <Editor
         height={height}
         language={language === 'orus' ? 'rust' : language}
-        theme="orus-dark"
+        theme="rust-playground"
         value={value}
         onChange={(value) => onChange(value || '')}
         onMount={handleEditorDidMount}
@@ -77,7 +77,7 @@ const MonacoEditor = ({
           readOnly,
           minimap: { enabled: false },
           fontSize: 14,
-          fontFamily: 'Fira Code, monospace',
+          fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
           tabSize: 4,
           insertSpaces: true,
           lineNumbers: 'on',
@@ -86,8 +86,9 @@ const MonacoEditor = ({
           wordWrap: 'on',
           renderWhitespace: 'selection',
           smoothScrolling: true,
-          cursorBlinking: 'smooth',
+          cursorBlinking: 'blink',
           bracketPairColorization: { enabled: true },
+          padding: { top: 16, bottom: 16 },
         }}
       />
     </div>

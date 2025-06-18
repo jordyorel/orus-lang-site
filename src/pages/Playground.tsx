@@ -4,9 +4,8 @@ import ExamplesSidebar from '@/components/playground/ExamplesSidebar';
 import PlaygroundToolbar from '@/components/playground/PlaygroundToolbar';
 import CodeEditor from '@/components/playground/CodeEditor';
 import OutputPanel from '@/components/playground/OutputPanel';
-import TipsCard from '@/components/playground/TipsCard';
 import { CodeExample } from '@/types/playground';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Playground = () => {
@@ -67,11 +66,10 @@ Process finished with exit code 0`);
 
   const shareCode = () => {
     navigator.clipboard.writeText(window.location.href + '?code=' + encodeURIComponent(code));
-    // In a real app, you'd implement proper sharing logic
   };
 
   const exportCode = () => {
-    // In a real app, you'd implement export logic
+    // Export logic
   };
 
   const handleExampleSelect = (exampleCode: string) => {
@@ -142,16 +140,34 @@ fn main() {
   ];
 
   return (
-    <div className="h-screen bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-charcoal-950 flex flex-col">
-      {/* Header */}
-      <div className="px-6 py-3 border-b border-charcoal-700 flex-shrink-0">
-        <PlaygroundHeader />
+    <div className="h-screen bg-white flex flex-col">
+      {/* Header - Rust playground style */}
+      <div className="bg-gray-800 text-white px-4 py-2 border-b border-gray-600">
+        <div className="flex items-center justify-between">
+          <PlaygroundHeader />
+          <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-700">
+              <Settings size={16} />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Toolbar - matches Rust playground */}
+      <div className="bg-gray-100 border-b border-gray-300 px-4 py-2">
+        <PlaygroundToolbar
+          isRunning={isRunning}
+          onRun={runCode}
+          onReset={resetCode}
+          onShare={shareCode}
+          onExport={exportCode}
+        />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden min-h-0">
         {/* Sidebar */}
-        <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden border-r border-charcoal-700 flex-shrink-0`}>
+        <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden border-r border-gray-300 flex-shrink-0 bg-gray-50`}>
           <div className="h-full p-4">
             <ExamplesSidebar 
               examples={examples} 
@@ -161,46 +177,27 @@ fn main() {
         </div>
 
         {/* Sidebar Toggle */}
-        <div className="flex flex-col justify-center flex-shrink-0">
+        <div className="flex flex-col justify-center flex-shrink-0 bg-gray-100">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="h-12 w-8 rounded-none border-y border-r border-charcoal-700 text-charcoal-400 hover:text-gold-400 hover:bg-charcoal-800/50"
+            className="h-12 w-8 rounded-none border-y border-r border-gray-300 text-gray-600 hover:text-gray-800 hover:bg-gray-200"
           >
             {sidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
           </Button>
         </div>
 
-        {/* Editor Area */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Toolbar */}
-          <div className="px-6 py-3 border-b border-charcoal-700 flex-shrink-0">
-            <PlaygroundToolbar
-              isRunning={isRunning}
-              onRun={runCode}
-              onReset={resetCode}
-              onShare={shareCode}
-              onExport={exportCode}
-            />
+        {/* Editor and Output Area */}
+        <div className="flex-1 flex min-w-0">
+          {/* Code Editor */}
+          <div className="flex-1 border-r border-gray-300 min-w-0">
+            <CodeEditor code={code} onChange={setCode} />
           </div>
 
-          {/* Code Editor and Output - Main playground area */}
-          <div className="flex-1 flex min-h-0">
-            {/* Code Editor */}
-            <div className="flex-1 border-r border-charcoal-700 min-w-0">
-              <CodeEditor code={code} onChange={setCode} />
-            </div>
-
-            {/* Output Panel */}
-            <div className="flex-1 min-w-0">
-              <OutputPanel output={output} isRunning={isRunning} />
-            </div>
-          </div>
-
-          {/* Tips Section - Reduced size */}
-          <div className="px-6 py-3 border-t border-charcoal-700 flex-shrink-0">
-            <TipsCard />
+          {/* Output Panel */}
+          <div className="flex-1 min-w-0">
+            <OutputPanel output={output} isRunning={isRunning} />
           </div>
         </div>
       </div>
