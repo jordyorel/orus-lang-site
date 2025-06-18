@@ -1,5 +1,6 @@
 
 import MonacoEditor from '@/components/MonacoEditor';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { CodeEditorProps } from '@/types/playground';
 
 const CodeEditor = ({ code, onChange }: CodeEditorProps) => {
@@ -12,13 +13,15 @@ const CodeEditor = ({ code, onChange }: CodeEditorProps) => {
         </div>
       </div>
       <div className="flex-1 min-h-0">
-        <MonacoEditor
-          value={code}
-          onChange={onChange}
-          language="orus"
-          height="100%"
-          forceDarkMode={true}
-        />
+        <ErrorBoundary>
+          <MonacoEditor
+            value={code}
+            onChange={onChange}
+            language="orus"
+            height="100%"
+            forceDarkMode={true}
+          />
+        </ErrorBoundary>
       </div>
     </div>
   );

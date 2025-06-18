@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
+import { sanitizeUrlParameter, secureClipboardWrite } from '@/utils/security';
 
 const DEFAULT_CODE = `fn main() {
     let name = "World";
@@ -44,14 +45,47 @@ export const usePlayground = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // Load code from URL parameter on mount with security validation
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeParam = urlParams.get('code');
+    if (codeParam) {
+      const sanitizedCode = sanitizeUrlParameter(codeParam);
+      if (sanitizedCode) {
+        setCode(sanitizedCode);
+        toast({
+          title: "Code Loaded",
+          description: "Code has been loaded from the URL.",
+        });
+      } else {
+        toast({
+          title: "Invalid URL Parameter",
+          description: "The code parameter in the URL is invalid and was ignored.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, []);
+
   const runCode = async () => {
     setIsRunning(true);
     setOutput(''); // Clear previous output
-    // Simulate code execution
-    setTimeout(() => {
-      setOutput(EXAMPLE_OUTPUT);
+    
+    try {
+      // Simulate code execution
+      setTimeout(() => {
+        setOutput(EXAMPLE_OUTPUT);
+        setIsRunning(false);
+      }, 1500);
+    } catch (error) {
       setIsRunning(false);
-    }, 1500);
+      setOutput('Error: Failed to execute code');
+      toast({
+        title: "Execution Error",
+        description: "An error occurred while running the code.",
+        variant: "destructive",
+      });
+    }
   };
 
   const resetCode = () => {
@@ -68,16 +102,20 @@ export const usePlayground = () => {
   const shareCode = async () => {
     try {
       const shareUrl = `${window.location.origin}${window.location.pathname}?code=${encodeURIComponent(code)}`;
-      await navigator.clipboard.writeText(shareUrl);
+      const success = await secureClipboardWrite(shareUrl);
       
-      toast({
-        title: "Share Link Created",
-        description: "The playground URL has been copied to your clipboard.",
-      });
+      if (success) {
+        toast({
+          title: "Share Link Created",
+          description: "The playground URL has been copied to your clipboard.",
+        });
+      } else {
+        throw new Error('Clipboard write failed');
+      }
     } catch (error) {
       toast({
         title: "Share Failed",
-        description: "Failed to create share link. Please try again.",
+        description: "Failed to create share link. Please try copying the URL manually.",
         variant: "destructive",
       });
     }
@@ -85,26 +123,36 @@ export const usePlayground = () => {
 
   const exportCode = async () => {
     try {
-      await navigator.clipboard.writeText(code);
-      toast({
-        title: "Code Copied",
-        description: "The code has been copied to your clipboard.",
-      });
-    } catch (error) {
-      // Fallback: create downloadable file
-      const blob = new Blob([code], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'main.rs';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const success = await secureClipboardWrite(code);
       
+      if (success) {
+        toast({
+          title: "Code Copied",
+          description: "The code has been copied to your clipboard.",
+        });
+      } else {
+        // Fallback: create downloadable file
+        const blob = new Blob([code], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'main.rs';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        toast({
+          title: "Code Downloaded",
+          description: "The code has been downloaded as main.rs file.",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Code Downloaded",
-        description: "The code has been downloaded as main.rs file.",
+        title: "Export Failed",
+        description: "Failed to export code. Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -132,20 +180,6 @@ export const usePlayground = () => {
       description: "The example code has been loaded into the editor.",
     });
   };
-
-  // Load code from URL parameter on mount
-  useState(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const codeParam = urlParams.get('code');
-    if (codeParam) {
-      try {
-        const decodedCode = decodeURIComponent(codeParam);
-        setCode(decodedCode);
-      } catch (error) {
-        console.error('Failed to decode code from URL:', error);
-      }
-    }
-  });
 
   return {
     code,
