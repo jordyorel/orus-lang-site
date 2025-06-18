@@ -1,9 +1,12 @@
 
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import MonacoEditor from '@/components/MonacoEditor';
-import { Play, Download, Share, RotateCcw, Terminal } from 'lucide-react';
+import PlaygroundHeader from '@/components/playground/PlaygroundHeader';
+import ExamplesSidebar from '@/components/playground/ExamplesSidebar';
+import PlaygroundToolbar from '@/components/playground/PlaygroundToolbar';
+import CodeEditor from '@/components/playground/CodeEditor';
+import OutputPanel from '@/components/playground/OutputPanel';
+import TipsCard from '@/components/playground/TipsCard';
+import { CodeExample } from '@/types/playground';
 
 const Playground = () => {
   const [code, setCode] = useState(`fn main() {
@@ -65,7 +68,16 @@ Process finished with exit code 0`);
     // In a real app, you'd implement proper sharing logic
   };
 
-  const examples = [
+  const exportCode = () => {
+    // In a real app, you'd implement export logic
+  };
+
+  const handleExampleSelect = (exampleCode: string) => {
+    setCode(exampleCode);
+    setOutput('');
+  };
+
+  const examples: CodeExample[] = [
     {
       title: 'Hello World',
       description: 'Basic hello world program',
@@ -130,137 +142,29 @@ fn main() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-charcoal-950">
       <div className="max-w-full mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8 animate-fade-in">
-          <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
-            <span className="text-gold-400">Orus</span> Playground
-          </h1>
-          <p className="text-xl text-charcoal-400">
-            Write, run, and experiment with Orus code directly in your browser.
-          </p>
-        </div>
+        <PlaygroundHeader />
 
         <div className="flex gap-6">
-          {/* Examples Sidebar */}
-          <div className="w-96 flex-shrink-0 hidden lg:block">
-            <Card className="bg-charcoal-800/50 border-charcoal-700 p-6 sticky top-8">
-              <h3 className="text-lg font-semibold text-white mb-4">Examples</h3>
-              <div className="space-y-3">
-                {examples.map((example, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setCode(example.code);
-                      setOutput('');
-                    }}
-                    className="w-full text-left p-3 rounded-lg bg-charcoal-900/50 hover:bg-charcoal-700/50 transition-colors group"
-                  >
-                    <h4 className="text-white font-medium group-hover:text-gold-400 transition-colors">
-                      {example.title}
-                    </h4>
-                    <p className="text-charcoal-400 text-sm mt-1">
-                      {example.description}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </Card>
-          </div>
+          <ExamplesSidebar 
+            examples={examples} 
+            onExampleSelect={handleExampleSelect} 
+          />
 
-          {/* Main Editor Area */}
           <div className="flex-1">
-            {/* Toolbar */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <Button
-                  onClick={runCode}
-                  disabled={isRunning}
-                  className="bg-gold-500 hover:bg-gold-600 text-charcoal-950 font-semibold"
-                >
-                  <Play size={16} className="mr-2" />
-                  {isRunning ? 'Running...' : 'Run'}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={resetCode}
-                  className="border-charcoal-600 text-charcoal-300 hover:text-gold-400 hover:border-gold-500/50"
-                >
-                  <RotateCcw size={16} className="mr-2" />
-                  Reset
-                </Button>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={shareCode}
-                  className="text-charcoal-400 hover:text-gold-400"
-                >
-                  <Share size={16} className="mr-2" />
-                  Share
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-charcoal-400 hover:text-gold-400"
-                >
-                  <Download size={16} className="mr-2" />
-                  Export
-                </Button>
-              </div>
-            </div>
+            <PlaygroundToolbar
+              isRunning={isRunning}
+              onRun={runCode}
+              onReset={resetCode}
+              onShare={shareCode}
+              onExport={exportCode}
+            />
 
-            {/* Editor */}
             <div className="grid lg:grid-cols-2 gap-6">
-              {/* Code Editor */}
-              <Card className="bg-charcoal-800/50 border-charcoal-700 p-4">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Terminal size={16} className="text-gold-400" />
-                  <span className="text-white font-medium">Code Editor</span>
-                </div>
-                <MonacoEditor
-                  value={code}
-                  onChange={setCode}
-                  language="orus"
-                  height="600px"
-                />
-              </Card>
-
-              {/* Output */}
-              <Card className="bg-charcoal-800/50 border-charcoal-700 p-4">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Terminal size={16} className="text-gold-400" />
-                  <span className="text-white font-medium">Output</span>
-                </div>
-                <div className="bg-charcoal-900 rounded-lg p-4 h-[600px] overflow-y-auto">
-                  {isRunning ? (
-                    <div className="text-gold-400 font-fira">
-                      <div className="animate-pulse">Compiling and running...</div>
-                    </div>
-                  ) : output ? (
-                    <pre className="text-charcoal-200 font-fira text-sm leading-relaxed whitespace-pre-wrap">
-                      {output}
-                    </pre>
-                  ) : (
-                    <div className="text-charcoal-500 font-fira text-sm">
-                      Click "Run" to execute your code...
-                    </div>
-                  )}
-                </div>
-              </Card>
+              <CodeEditor code={code} onChange={setCode} />
+              <OutputPanel output={output} isRunning={isRunning} />
             </div>
 
-            {/* Tips */}
-            <Card className="bg-gradient-to-r from-gold-500/10 to-gold-600/10 border-gold-500/30 p-6 mt-6">
-              <h3 className="text-lg font-semibold text-white mb-2">💡 Tips</h3>
-              <ul className="text-charcoal-300 space-y-1 text-sm">
-                <li>• Use <code className="text-gold-400 font-fira">println!</code> for debug output</li>
-                <li>• Try the examples on the left to explore different Orus features</li>
-                <li>• The editor supports syntax highlighting and basic autocomplete</li>
-                <li>• Share your code using the Share button to get a permanent link</li>
-              </ul>
-            </Card>
+            <TipsCard />
           </div>
         </div>
       </div>
