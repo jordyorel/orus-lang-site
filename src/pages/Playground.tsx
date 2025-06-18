@@ -7,6 +7,8 @@ import CodeEditor from '@/components/playground/CodeEditor';
 import OutputPanel from '@/components/playground/OutputPanel';
 import TipsCard from '@/components/playground/TipsCard';
 import { CodeExample } from '@/types/playground';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Playground = () => {
   const [code, setCode] = useState(`fn main() {
@@ -40,6 +42,7 @@ const Playground = () => {
 
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const runCode = async () => {
     setIsRunning(true);
@@ -140,17 +143,40 @@ fn main() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-charcoal-950">
-      <div className="max-w-full mx-auto px-6 py-8">
+    <div className="h-screen bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-charcoal-950 flex flex-col">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-charcoal-700">
         <PlaygroundHeader />
+      </div>
 
-        <div className="flex gap-6">
-          <ExamplesSidebar 
-            examples={examples} 
-            onExampleSelect={handleExampleSelect} 
-          />
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Sidebar */}
+        <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden border-r border-charcoal-700`}>
+          <div className="h-full p-4">
+            <ExamplesSidebar 
+              examples={examples} 
+              onExampleSelect={handleExampleSelect} 
+            />
+          </div>
+        </div>
 
-          <div className="flex-1">
+        {/* Sidebar Toggle */}
+        <div className="flex flex-col justify-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="h-12 w-8 rounded-none border-y border-r border-charcoal-700 text-charcoal-400 hover:text-gold-400 hover:bg-charcoal-800/50"
+          >
+            {sidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+          </Button>
+        </div>
+
+        {/* Editor Area */}
+        <div className="flex-1 flex flex-col">
+          {/* Toolbar */}
+          <div className="px-6 py-4 border-b border-charcoal-700">
             <PlaygroundToolbar
               isRunning={isRunning}
               onRun={runCode}
@@ -158,12 +184,23 @@ fn main() {
               onShare={shareCode}
               onExport={exportCode}
             />
+          </div>
 
-            <div className="grid lg:grid-cols-2 gap-6">
+          {/* Code Editor and Output */}
+          <div className="flex-1 flex">
+            {/* Code Editor */}
+            <div className="flex-1 border-r border-charcoal-700">
               <CodeEditor code={code} onChange={setCode} />
-              <OutputPanel output={output} isRunning={isRunning} />
             </div>
 
+            {/* Output Panel */}
+            <div className="flex-1">
+              <OutputPanel output={output} isRunning={isRunning} />
+            </div>
+          </div>
+
+          {/* Tips Section */}
+          <div className="p-6 border-t border-charcoal-700">
             <TipsCard />
           </div>
         </div>
