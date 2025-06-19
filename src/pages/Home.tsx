@@ -67,7 +67,7 @@ print(p.x)`;
           </div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-32">
+        <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-32 text-center">
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <img 
