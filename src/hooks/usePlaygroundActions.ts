@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { shareCode, exportCode, showHelp } from '@/utils/playgroundActions';
@@ -6,7 +5,7 @@ import { shareCode, exportCode, showHelp } from '@/utils/playgroundActions';
 export const usePlaygroundActions = (code: string, setCode: (code: string) => void, setOutput: (output: string) => void) => {
   const resetCode = useCallback(() => {
     setCode(`fn main() {
-    println!("Hello, Orus!");
+    print("Hello")
 }`);
     setOutput('');
     toast({

@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import { useUrlCodeLoader } from './useUrlCodeLoader';
 import { useCodeExecution } from './useCodeExecution';
 import { usePlaygroundActions } from './usePlaygroundActions';
 
 const DEFAULT_CODE = `fn main() {
-    println!("Hello");
+    print("Hello")
 }`;
 
 export const usePlayground = () => {
@@ -14,10 +13,8 @@ export const usePlayground = () => {
   // Load code from URL parameter on mount
   useUrlCodeLoader(setCode);
 
-  // Code execution functionality
   const { output, isRunning, runCode, clearOutput } = useCodeExecution();
 
-  // Playground actions (reset, share, export, etc.)
   const {
     resetCode,
     shareCode,
