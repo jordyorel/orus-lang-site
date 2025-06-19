@@ -5,7 +5,7 @@ import OutputPanel from '@/components/playground/OutputPanel';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { usePlayground } from '@/hooks/usePlayground';
 import { Toaster } from '@/components/ui/toaster';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const Playground = () => {
   console.log('Playground component is rendering');
@@ -24,14 +24,23 @@ const Playground = () => {
     handleExampleSelect
   } = usePlayground();
 
+  const [showOutputPanel, setShowOutputPanel] = useState(false);
+
   useEffect(() => {
     console.log('Playground component mounted');
     console.log('Code length:', code.length);
   }, [code]);
 
+  useEffect(() => {
+    // Show output panel when there's output or code is running
+    setShowOutputPanel(isRunning || Boolean(output));
+  }, [isRunning, output]);
+
   console.log('Playground rendering with code:', code.substring(0, 50) + '...');
 
-  const showOutputPanel = isRunning || output;
+  const handleDragUp = () => {
+    setShowOutputPanel(true);
+  };
 
   return (
     <div className="h-screen bg-charcoal-900 flex flex-col">
@@ -64,9 +73,35 @@ const Playground = () => {
             </ResizablePanel>
           </ResizablePanelGroup>
         ) : (
-          /* Full Code Editor when no output - no borders or padding */
-          <div className="h-full">
+          <div className="h-full relative">
             <CodeEditor code={code} onChange={setCode} />
+            {/* Draggable handle at bottom */}
+            <div 
+              className="absolute bottom-0 left-0 right-0 h-2 bg-charcoal-700 hover:bg-gold-500 cursor-ns-resize transition-colors group"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                const startY = e.clientY;
+                
+                const handleMouseMove = (e: MouseEvent) => {
+                  const deltaY = startY - e.clientY;
+                  if (deltaY > 20) { // Dragged up at least 20px
+                    handleDragUp();
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                  }
+                };
+                
+                const handleMouseUp = () => {
+                  document.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('mouseup', handleMouseUp);
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+              }}
+            >
+              <div className="w-12 h-1 bg-charcoal-400 group-hover:bg-gold-400 rounded-full mx-auto mt-0.5 transition-colors"></div>
+            </div>
           </div>
         )}
       </div>
