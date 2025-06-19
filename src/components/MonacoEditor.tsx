@@ -57,32 +57,35 @@ const MonacoEditor = ({
       .replace(/>/g, '&gt;');
     
     return escaped
-      // Keywords - using gold color for keywords
+      // Keywords - using bright orange/gold color like in screenshots
       .replace(/(fn|let|mut|pub|struct|enum|impl|match|if|else|for|while|loop|break|continue|return|use|mod|const|static|trait|type|where|unsafe|async|await|move|ref|in|as|crate|super|self|Self)\b/g, 
-        '<span style="color: #f59e0b;">$1</span>')
-      // Types - using lighter gold
-      .replace(/\b(i8|i16|i32|i64|i128|isize|u8|u16|u32|u64|u128|usize|f32|f64|bool|char|str|String|Vec|Option|Result|Box|Rc|Arc|RefCell|Mutex|HashMap|HashSet)\b/g,
-        '<span style="color: #fbbf24;">$1</span>')
-      // String literals - using light charcoal
+        '<span style="color: #ff8c42;">$1</span>')
+      // Types - using purple color like in screenshots
+      .replace(/\b(i8|i16|i32|i64|i128|isize|u8|u16|u32|u64|u128|usize|f32|f64|bool|char|str|String|Vec|Option|Result|Box|Rc|Arc|RefCell|Mutex|HashMap|HashSet|RNG|T)\b/g,
+        '<span style="color: #c678dd;">$1</span>')
+      // String literals - using green color like in screenshots
       .replace(/(r#*"[^"]*"#*|"[^"]*"|'[^']*')/g, 
-        '<span style="color: #b0b0b0;">$1</span>')
-      // Comments - using muted charcoal
+        '<span style="color: #98c379;">$1</span>')
+      // Comments - using muted gray
       .replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, 
-        '<span style="color: #6d6d6d;">$1</span>')
-      // Numbers - using gold
+        '<span style="color: #5c6370;">$1</span>')
+      // Numbers - using light blue/cyan like in screenshots
       .replace(/\b(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?[fF]?)\b/g, 
-        '<span style="color: #fcd34d;">$1</span>')
-      // Macros - using bright gold
-      .replace(/(\w+!)/g,
-        '<span style="color: #f59e0b;">$1</span>')
-      // Boolean literals - using gold
+        '<span style="color: #56b6c2;">$1</span>')
+      // Function names - using yellow/gold
+      .replace(/(\w+)(?=\s*\()/g,
+        '<span style="color: #d19a66;">$1</span>')
+      // Boolean literals - using orange
       .replace(/\b(true|false)\b/g,
-        '<span style="color: #fbbf24;">$1</span>');
+        '<span style="color: #d19a66;">$1</span>')
+      // Special operators and symbols - using red/pink
+      .replace(/(\+|\-|\*|\/|%|==|!=|<=|>=|<|>|&&|\|\||!|&|\||\^|<<|>>|=)/g,
+        '<span style="color: #e06c75;">$1</span>');
   };
 
   const runCode = () => {
     // Simulate code execution
-    setOutput(`Running Orus code...\n\nCode executed successfully!\nOutput: Hello, Orus!\n\nExecution time: 23ms`);
+    setOutput(`Running Orus code...\n\nCode executed successfully!\nOutput: Hello\n\nExecution time: 23ms`);
     setIsOutputVisible(true);
   };
 
@@ -128,17 +131,26 @@ const MonacoEditor = ({
         
         {/* Editor area */}
         <div className="flex-1 relative">
-          {/* Actual textarea - always visible */}
+          {/* Syntax highlighted overlay */}
+          <div 
+            className="absolute inset-0 p-4 leading-6 whitespace-pre-wrap break-words pointer-events-none font-mono text-sm overflow-hidden"
+            style={{
+              fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
+              color: 'transparent'
+            }}
+            dangerouslySetInnerHTML={{ __html: syntaxHighlight(value) }}
+          />
+          
+          {/* Actual textarea */}
           <textarea
             ref={textareaRef}
             value={value}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            className="absolute inset-0 w-full h-full p-4 bg-transparent leading-6 resize-none outline-none border-none whitespace-pre-wrap break-words text-charcoal-100"
+            className="absolute inset-0 w-full h-full p-4 bg-transparent leading-6 resize-none outline-none border-none whitespace-pre-wrap break-words text-transparent"
             style={{
               fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
-              caretColor: '#f59e0b',
-              color: '#e5e7eb',
+              caretColor: '#ff8c42',
               zIndex: 2
             }}
             placeholder="Write your Orus code here..."
