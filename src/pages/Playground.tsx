@@ -7,13 +7,9 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 import { usePlayground } from '@/hooks/usePlayground';
 import { Toaster } from '@/components/ui/toaster';
 import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const Playground = () => {
   console.log('Playground component is rendering');
-  const navigate = useNavigate();
   
   const {
     code,
@@ -36,24 +32,8 @@ const Playground = () => {
 
   console.log('Playground rendering with code:', code.substring(0, 50) + '...');
 
-  const handleBack = () => {
-    navigate(-1);
-  };
-
   return (
     <div className="h-screen bg-charcoal-900 flex flex-col">
-      {/* Back Button */}
-      <div className="absolute top-4 left-4 z-50">
-        <Button
-          onClick={handleBack}
-          variant="ghost"
-          size="sm"
-          className="text-charcoal-300 hover:text-gold-400 hover:bg-charcoal-800 p-2"
-        >
-          <ArrowLeft size={20} />
-        </Button>
-      </div>
-
       {/* Top Toolbar */}
       <div className="bg-charcoal-800 border-b border-charcoal-700 px-4 py-2">
         <PlaygroundToolbar
