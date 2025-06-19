@@ -1,5 +1,3 @@
-
-
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -67,21 +65,7 @@ print(p.x)`;
           </div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-32 text-center">
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <img 
-              src="/orus.png" 
-              alt="Orus Language Logo" 
-              className="w-20 h-20 object-contain"
-              onError={(e) => {
-                console.log('Logo failed to load');
-                e.currentTarget.style.display = 'none';
-              }}
-              onLoad={() => console.log('Logo loaded successfully')}
-            />
-          </div>
-          
+        <div className="relative max-w-7xl mx-auto px-6 py-24 lg:py-40 text-center">
           {/* Hero Title */}
           <h1 className="text-5xl lg:text-7xl font-bold mb-6">
             <span className="text-white">The </span>
