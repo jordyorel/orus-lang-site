@@ -47,42 +47,6 @@ const MonacoEditor = ({
     }
   };
 
-  const syntaxHighlight = (code: string) => {
-    if (!code) return '';
-    
-    // Escape HTML first to prevent issues
-    const escaped = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    
-    return escaped
-      // Keywords - using bright orange/gold color like in screenshots
-      .replace(/(fn|let|mut|pub|struct|enum|impl|match|if|else|for|while|loop|break|continue|return|use|mod|const|static|trait|type|where|unsafe|async|await|move|ref|in|as|crate|super|self|Self)\b/g, 
-        '<span style="color: #ff8c42;">$1</span>')
-      // Types - using purple color like in screenshots
-      .replace(/\b(i8|i16|i32|i64|i128|isize|u8|u16|u32|u64|u128|usize|f32|f64|bool|char|str|String|Vec|Option|Result|Box|Rc|Arc|RefCell|Mutex|HashMap|HashSet|RNG|T)\b/g,
-        '<span style="color: #c678dd;">$1</span>')
-      // String literals - using green color like in screenshots
-      .replace(/(r#*"[^"]*"#*|"[^"]*"|'[^']*')/g, 
-        '<span style="color: #98c379;">$1</span>')
-      // Comments - using muted gray
-      .replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, 
-        '<span style="color: #5c6370;">$1</span>')
-      // Numbers - using light blue/cyan like in screenshots
-      .replace(/\b(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?[fF]?)\b/g, 
-        '<span style="color: #56b6c2;">$1</span>')
-      // Function names - using yellow/gold
-      .replace(/(\w+)(?=\s*\()/g,
-        '<span style="color: #d19a66;">$1</span>')
-      // Boolean literals - using orange
-      .replace(/\b(true|false)\b/g,
-        '<span style="color: #d19a66;">$1</span>')
-      // Special operators and symbols - using red/pink
-      .replace(/(\+|\-|\*|\/|%|==|!=|<=|>=|<|>|&&|\|\||!|&|\||\^|<<|>>|=)/g,
-        '<span style="color: #e06c75;">$1</span>');
-  };
-
   const runCode = () => {
     // Simulate code execution
     setOutput(`Running Orus code...\n\nCode executed successfully!\nOutput: Hello\n\nExecution time: 23ms`);
@@ -131,26 +95,17 @@ const MonacoEditor = ({
         
         {/* Editor area */}
         <div className="flex-1 relative">
-          {/* Syntax highlighted overlay */}
-          <div 
-            className="absolute inset-0 p-4 leading-6 whitespace-pre-wrap break-words pointer-events-none font-mono text-sm overflow-hidden"
-            style={{
-              fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
-              color: 'transparent'
-            }}
-            dangerouslySetInnerHTML={{ __html: syntaxHighlight(value) }}
-          />
-          
           {/* Actual textarea */}
           <textarea
             ref={textareaRef}
             value={value}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            className="absolute inset-0 w-full h-full p-4 bg-transparent leading-6 resize-none outline-none border-none whitespace-pre-wrap break-words text-transparent"
+            className="absolute inset-0 w-full h-full p-4 bg-transparent leading-6 resize-none outline-none border-none whitespace-pre-wrap break-words text-charcoal-100"
             style={{
               fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
-              caretColor: '#ff8c42',
+              caretColor: '#f59e0b',
+              color: '#e5e7eb',
               zIndex: 2
             }}
             placeholder="Write your Orus code here..."
