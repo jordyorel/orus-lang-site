@@ -46,9 +46,15 @@ const MonacoEditor = ({
   };
 
   const syntaxHighlight = (code: string) => {
-    return code
+    // Escape HTML first to prevent issues
+    const escaped = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    
+    return escaped
       // Keywords - using gold color for keywords
-      .replace(/(fn|let|mut|pub|struct|enum|impl|match|if|else|for|while|loop|break|continue|return|use|mod|const|static|trait|type|where|unsafe|async|await|move|ref|in|as|crate|super|self|Self)/g, 
+      .replace(/(fn|let|mut|pub|struct|enum|impl|match|if|else|for|while|loop|break|continue|return|use|mod|const|static|trait|type|where|unsafe|async|await|move|ref|in|as|crate|super|self|Self)\b/g, 
         '<span style="color: #f59e0b;">$1</span>')
       // Types - using lighter gold
       .replace(/\b(i8|i16|i32|i64|i128|isize|u8|u16|u32|u64|u128|usize|f32|f64|bool|char|str|String|Vec|Option|Result|Box|Rc|Arc|RefCell|Mutex|HashMap|HashSet)\b/g,
@@ -85,9 +91,15 @@ const MonacoEditor = ({
       <div className="flex-1 relative">
         {/* Syntax highlighted background */}
         <div 
-          className="absolute inset-0 p-4 leading-6 text-transparent pointer-events-none whitespace-pre-wrap break-words overflow-hidden"
+          className="absolute inset-0 p-4 leading-6 pointer-events-none whitespace-pre-wrap break-words overflow-hidden"
+          style={{
+            color: 'transparent',
+            fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
+            fontSize: 'inherit',
+            lineHeight: 'inherit'
+          }}
           dangerouslySetInnerHTML={{ 
-            __html: syntaxHighlight(value || '').replace(/\n/g, '<br/>') 
+            __html: syntaxHighlight(value || '') 
           }}
         />
         
@@ -100,7 +112,8 @@ const MonacoEditor = ({
           className="absolute inset-0 w-full h-full p-4 bg-transparent text-charcoal-100 leading-6 resize-none outline-none border-none whitespace-pre-wrap break-words"
           style={{
             fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
-            caretColor: '#f59e0b'
+            caretColor: '#f59e0b',
+            color: 'transparent'
           }}
           placeholder="Write your Orus code here..."
           spellCheck={false}
