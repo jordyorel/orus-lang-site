@@ -113,7 +113,7 @@ const MonacoEditor = ({
           style={{
             fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
             caretColor: '#f59e0b',
-            color: 'transparent'
+            color: value ? 'transparent' : '#9ca3af'
           }}
           placeholder="Write your Orus code here..."
           spellCheck={false}

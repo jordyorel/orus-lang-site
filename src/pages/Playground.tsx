@@ -3,6 +3,7 @@ import PlaygroundHeader from '@/components/playground/PlaygroundHeader';
 import PlaygroundToolbar from '@/components/playground/PlaygroundToolbar';
 import CodeEditor from '@/components/playground/CodeEditor';
 import OutputPanel from '@/components/playground/OutputPanel';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { usePlayground } from '@/hooks/usePlayground';
 import { Toaster } from '@/components/ui/toaster';
 import { useEffect } from 'react';
@@ -45,17 +46,21 @@ const Playground = () => {
         />
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-0">
-        {/* Code Editor */}
-        <div className="flex-1 min-h-0">
-          <CodeEditor code={code} onChange={setCode} />
-        </div>
+      {/* Main Content Area with Resizable Panels */}
+      <div className="flex-1 min-h-0">
+        <ResizablePanelGroup direction="vertical" className="h-full">
+          {/* Code Editor */}
+          <ResizablePanel defaultSize={70} minSize={30}>
+            <CodeEditor code={code} onChange={setCode} />
+          </ResizablePanel>
 
-        {/* Output Panel */}
-        <div className="h-64 border-t border-charcoal-700">
-          <OutputPanel output={output} isRunning={isRunning} onClear={clearOutput} />
-        </div>
+          <ResizableHandle withHandle className="bg-charcoal-700 hover:bg-gold-500 transition-colors" />
+
+          {/* Output Panel */}
+          <ResizablePanel defaultSize={30} minSize={20}>
+            <OutputPanel output={output} isRunning={isRunning} onClear={clearOutput} />
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
       
       <Toaster />
