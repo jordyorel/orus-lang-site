@@ -89,19 +89,21 @@ const MonacoEditor = ({
       
       {/* Editor area */}
       <div className="flex-1 relative">
-        {/* Syntax highlighted background */}
-        <div 
-          className="absolute inset-0 p-4 leading-6 pointer-events-none whitespace-pre-wrap break-words overflow-hidden"
-          style={{
-            color: 'transparent',
-            fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
-            fontSize: 'inherit',
-            lineHeight: 'inherit'
-          }}
-          dangerouslySetInnerHTML={{ 
-            __html: syntaxHighlight(value || '') 
-          }}
-        />
+        {/* Syntax highlighted background - only show when there's content */}
+        {value && (
+          <div 
+            className="absolute inset-0 p-4 leading-6 pointer-events-none whitespace-pre-wrap break-words overflow-hidden"
+            style={{
+              color: 'transparent',
+              fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
+              fontSize: 'inherit',
+              lineHeight: 'inherit'
+            }}
+            dangerouslySetInnerHTML={{ 
+              __html: syntaxHighlight(value) 
+            }}
+          />
+        )}
         
         {/* Actual textarea */}
         <textarea
