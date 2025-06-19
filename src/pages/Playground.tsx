@@ -42,6 +42,11 @@ const Playground = () => {
     setShowOutputPanel(true);
   };
 
+  const handleCloseOutput = () => {
+    setShowOutputPanel(false);
+    clearOutput();
+  };
+
   return (
     <div className="h-screen bg-charcoal-900 flex flex-col">
       {/* Top Toolbar */}
@@ -65,19 +70,52 @@ const Playground = () => {
               <CodeEditor code={code} onChange={setCode} />
             </ResizablePanel>
 
-            <ResizableHandle withHandle className="bg-charcoal-700 hover:bg-gold-500 transition-colors" />
+            <ResizableHandle 
+              withHandle 
+              className="bg-charcoal-700 hover:bg-gold-500 transition-colors relative group"
+              onDoubleClick={handleCloseOutput}
+            >
+              <div 
+                className="absolute inset-0 cursor-ns-resize"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  const startY = e.clientY;
+                  let isDragging = false;
+                  
+                  const handleMouseMove = (e: MouseEvent) => {
+                    const deltaY = e.clientY - startY;
+                    isDragging = true;
+                    
+                    // If dragged down more than 100px, close the panel
+                    if (deltaY > 100) {
+                      handleCloseOutput();
+                      document.removeEventListener('mousemove', handleMouseMove);
+                      document.removeEventListener('mouseup', handleMouseUp);
+                    }
+                  };
+                  
+                  const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                  };
+                  
+                  document.addEventListener('mousemove', handleMouseMove);
+                  document.addEventListener('mouseup', handleMouseUp);
+                }}
+              />
+            </ResizableHandle>
 
             {/* Output Panel */}
             <ResizablePanel defaultSize={30} minSize={20}>
-              <OutputPanel output={output} isRunning={isRunning} onClear={clearOutput} />
+              <OutputPanel output={output} isRunning={isRunning} onClear={handleCloseOutput} />
             </ResizablePanel>
           </ResizablePanelGroup>
         ) : (
           <div className="h-full relative">
             <CodeEditor code={code} onChange={setCode} />
-            {/* Draggable handle at bottom */}
+            {/* Enhanced draggable handle at bottom */}
             <div 
-              className="absolute bottom-0 left-0 right-0 h-2 bg-charcoal-700 hover:bg-gold-500 cursor-ns-resize transition-colors group"
+              className="absolute bottom-0 left-0 right-0 h-4 bg-charcoal-700 hover:bg-gold-500 cursor-ns-resize transition-colors group flex items-center justify-center"
               onMouseDown={(e) => {
                 e.preventDefault();
                 const startY = e.clientY;
@@ -100,7 +138,13 @@ const Playground = () => {
                 document.addEventListener('mouseup', handleMouseUp);
               }}
             >
-              <div className="w-12 h-1 bg-charcoal-400 group-hover:bg-gold-400 rounded-full mx-auto mt-0.5 transition-colors"></div>
+              <div className="flex space-x-1">
+                <div className="w-1 h-1 bg-charcoal-400 group-hover:bg-gold-400 rounded-full transition-colors"></div>
+                <div className="w-1 h-1 bg-charcoal-400 group-hover:bg-gold-400 rounded-full transition-colors"></div>
+                <div className="w-1 h-1 bg-charcoal-400 group-hover:bg-gold-400 rounded-full transition-colors"></div>
+                <div className="w-1 h-1 bg-charcoal-400 group-hover:bg-gold-400 rounded-full transition-colors"></div>
+                <div className="w-1 h-1 bg-charcoal-400 group-hover:bg-gold-400 rounded-full transition-colors"></div>
+              </div>
             </div>
           </div>
         )}
