@@ -1,6 +1,8 @@
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import SyntaxHighlighter from '@/components/SyntaxHighlighter';
 import { ArrowRight, Zap, Shield, Cpu, Users, Code2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -109,11 +111,10 @@ print(p.x)`;
               <p className="text-charcoal-400">Simple, expressive, and powerful</p>
             </div>
             <Card className="bg-charcoal-900/50 border-charcoal-700 p-6 backdrop-blur-sm">
-              <pre className="text-sm lg:text-base overflow-x-auto">
-                <code className="text-charcoal-200 font-fira leading-relaxed">
-                  {codeExample}
-                </code>
-              </pre>
+              <SyntaxHighlighter 
+                code={codeExample}
+                language="orus"
+              />
             </Card>
           </div>
         </div>

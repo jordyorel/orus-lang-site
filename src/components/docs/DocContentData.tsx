@@ -1,5 +1,6 @@
 
 import { Card } from '@/components/ui/card';
+import SyntaxHighlighter from '@/components/SyntaxHighlighter';
 
 export interface DocSection {
   title: string;
@@ -19,13 +20,12 @@ export const getDocContent = (sectionName: string): DocSection => {
               A simple program prints text using the built-in <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">print</code> function:
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`fn main() {
+            <SyntaxHighlighter
+              code={`fn main() {
     print("Hello, Orus!")
 }`}
-              </pre>
-            </Card>
+              language="orus"
+            />
             
             <p className="text-charcoal-300 leading-relaxed">
               The interpreter looks for a <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">main</code> function in the entry file. 
@@ -46,12 +46,11 @@ export const getDocContent = (sectionName: string): DocSection => {
               Variables are declared with <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">let</code>.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`let number: i32 = 5     // immutable
+            <SyntaxHighlighter
+              code={`let number: i32 = 5     // immutable
 let mut count = 0       // mutable, type inferred as i32`}
-              </pre>
-            </Card>
+              language="orus"
+            />
             
             <ul className="list-disc list-inside text-charcoal-300 space-y-2">
               <li><strong>Immutability</strong> is the default. Reassigning an immutable binding is a compile-time error.</li>
@@ -60,16 +59,15 @@ let mut count = 0       // mutable, type inferred as i32`}
             </ul>
 
             <h3 className="text-xl font-semibold text-white">Comments</h3>
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`// single line
+            <SyntaxHighlighter
+              code={`// single line
 let x = 1 /* inline */ + 2
 
 /*
 This is a block comment.
 */`}
-              </pre>
-            </Card>
+              language="orus"
+            />
           </div>
         )
       };
@@ -91,26 +89,24 @@ This is a block comment.
               <li><code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">string</code> – UTF‑8 text</li>
             </ul>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`let flag: bool = true
+            <SyntaxHighlighter
+              code={`let flag: bool = true
 let text = "hello"       // type inference`}
-              </pre>
-            </Card>
+              language="orus"
+            />
             
             <h3 className="text-xl font-semibold text-white">Type Casting</h3>
             <p className="text-charcoal-300 leading-relaxed">
               Numeric types never convert implicitly. Use <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">as</code> to cast:
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`let a: i32 = -5
+            <SyntaxHighlighter
+              code={`let a: i32 = -5
 let b: u32 = a as u32
 let big: u64 = a as u64
 let c: i32 = big as i32`}
-              </pre>
-            </Card>
+              language="orus"
+            />
           </div>
         )
       };
@@ -125,17 +121,16 @@ let c: i32 = big as i32`}
               Functions are defined with <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">fn</code>. Parameter types are required and the return type follows <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">-&gt;</code>.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`fn add(a: i32, b: i32) -> i32 {
+            <SyntaxHighlighter
+              code={`fn add(a: i32, b: i32) -> i32 {
     return a + b
 }
 
 fn greet(name: string) {    // no return value
     print("Hello, {}!", name)
 }`}
-              </pre>
-            </Card>
+              language="orus"
+            />
             
             <p className="text-charcoal-300 leading-relaxed">
               Functions may be declared after their call site. Generic functions can also be referenced before their definitions thanks to a prepass that records all generic signatures.
@@ -151,26 +146,24 @@ fn greet(name: string) {    // no return value
         content: (
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-white">Conditionals</h3>
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`if n > 0 {
+            <SyntaxHighlighter
+              code={`if n > 0 {
     print("positive")
 } elif n == 0 {
     print("zero")
 } else {
     print("negative")
 }`}
-              </pre>
-            </Card>
+              language="orus"
+            />
             
             <p className="text-charcoal-300 leading-relaxed">
               An inline form <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">condition ? expr1 : expr2</code> evaluates to <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">expr1</code> when the condition is true, otherwise <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">expr2</code>.
             </p>
 
             <h3 className="text-xl font-semibold text-white">Loops</h3>
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`for i in 0..5 {          // 0 to 4
+            <SyntaxHighlighter
+              code={`for i in 0..5 {          // 0 to 4
     print(i)
 }
 
@@ -180,8 +173,8 @@ while condition {
 
 break      // exit loop
 continue   // next iteration`}
-              </pre>
-            </Card>
+              language="orus"
+            />
           </div>
         )
       };
@@ -196,15 +189,14 @@ continue   // next iteration`}
               <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">match</code> compares a value against patterns, similar to <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">switch</code> in other languages but with explicit patterns like Rust.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`match value {
+            <SyntaxHighlighter
+              code={`match value {
     0 => print("zero"),
     1 => print("one"),
     _ => print("other"),
 }`}
-              </pre>
-            </Card>
+              language="orus"
+            />
             
             <p className="text-charcoal-300 leading-relaxed">
               The first matching branch runs. Use <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">_</code> as a wildcard.
@@ -224,40 +216,37 @@ continue   // next iteration`}
               Fixed-length arrays use <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">[T; N]</code> syntax. Elements are zero indexed.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`let nums: [i32; 3] = [1, 2, 3]
+            <SyntaxHighlighter
+              code={`let nums: [i32; 3] = [1, 2, 3]
 let first = nums[0]
 nums[1] = 20`}
-              </pre>
-            </Card>
+              language="orus"
+            />
 
             <h3 className="text-xl font-semibold text-white">Dynamic Arrays</h3>
             <p className="text-charcoal-300 leading-relaxed">
               Built-in functions can grow arrays dynamically.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`let values: [i32; 1] = [0]
+            <SyntaxHighlighter
+              code={`let values: [i32; 1] = [0]
 push(values, 10)
 print(len(values))  // 2`}
-              </pre>
-            </Card>
+              language="orus"
+            />
 
             <h3 className="text-xl font-semibold text-white">Slicing</h3>
             <p className="text-charcoal-300 leading-relaxed">
               Subarrays are created with <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">[start..end]</code> (end exclusive).
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`let part = nums[0..2]  // first to 3rd element
+            <SyntaxHighlighter
+              code={`let part = nums[0..2]  // first to 3rd element
 let part = nums[..2]   // first to 3rd element  
 let part = nums[0..]   // first to last element
 let part = nums[..]    // entire array`}
-              </pre>
-            </Card>
+              language="orus"
+            />
           </div>
         )
       };
@@ -273,26 +262,24 @@ let part = nums[..]    // entire array`}
               Structs group named fields.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`struct Point {
+            <SyntaxHighlighter
+              code={`struct Point {
     x: i32,
     y: i32,
 }
 
 let p = Point{ x: 1, y: 2 }
 print(p.x)`}
-              </pre>
-            </Card>
+              language="orus"
+            />
 
             <h3 className="text-xl font-semibold text-white">Methods with impl</h3>
             <p className="text-charcoal-300 leading-relaxed">
               Methods attach functions to a struct inside an <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">impl</code> block. This style is similar to Rust.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`impl Point {
+            <SyntaxHighlighter
+              code={`impl Point {
     fn new(x: i32, y: i32) -> Point {
         return Point{ x: x, y: y }
     }
@@ -306,8 +293,8 @@ print(p.x)`}
 // Usage
 let p = Point.new(1, 2)
 p.move_by(3, 4)`}
-              </pre>
-            </Card>
+              language="orus"
+            />
           </div>
         )
       };
@@ -322,40 +309,37 @@ p.move_by(3, 4)`}
               Functions and structs may take type parameters using angle brackets.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`fn id<T>(x: T) -> T {
+            <SyntaxHighlighter
+              code={`fn id<T>(x: T) -> T {
     return x
 }
 
 struct Box<T> { value: T }`}
-              </pre>
-            </Card>
+              language="orus"
+            />
             
             <p className="text-charcoal-300 leading-relaxed">
               Type arguments can often be inferred:
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`let a = id<i32>(5)
+            <SyntaxHighlighter
+              code={`let a = id<i32>(5)
 let b: Box<string> = Box { value: "hi" }`}
-              </pre>
-            </Card>
+              language="orus"
+            />
 
             <h3 className="text-xl font-semibold text-white">Constraints</h3>
             <p className="text-charcoal-300 leading-relaxed">
               Type parameters may declare constraints. <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">Numeric</code> enables arithmetic and bitwise operators while <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">Comparable</code> allows comparison and equality.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`fn add<T: Numeric>(a: T, b: T) -> T { return a + b }
+            <SyntaxHighlighter
+              code={`fn add<T: Numeric>(a: T, b: T) -> T { return a + b }
 fn min<T: Comparable>(a: T, b: T) -> T { 
     if a < b { return a } else { return b } 
 }`}
-              </pre>
-            </Card>
+              language="orus"
+            />
           </div>
         )
       };
@@ -370,26 +354,24 @@ fn min<T: Comparable>(a: T, b: T) -> T {
               Code can be split into multiple files. Use <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">use</code> to load an entire module.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`use math::utils
+            <SyntaxHighlighter
+              code={`use math::utils
 use datetime as dt
 
 fn main() {
     utils.helper()
     dt.now()
 }`}
-              </pre>
-            </Card>
+              language="orus"
+            />
 
             <h3 className="text-xl font-semibold text-white">Public Functions</h3>
             <p className="text-charcoal-300 leading-relaxed">
               Use the <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">pub</code> keyword before a top-level function to export it from a module.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`// utils.orus
+            <SyntaxHighlighter
+              code={`// utils.orus
 pub fn helper() {
     print("from helper")
 }
@@ -400,8 +382,8 @@ use utils
 fn main() {
     utils.helper()
 }`}
-              </pre>
-            </Card>
+              language="orus"
+            />
           </div>
         )
       };
@@ -416,15 +398,14 @@ fn main() {
               <code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">try</code>/<code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">catch</code> blocks handle runtime errors.
             </p>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`try {
+            <SyntaxHighlighter
+              code={`try {
     let x = 10 / 0
 } catch err {
     print("Error: {}", err)
 }`}
-              </pre>
-            </Card>
+              language="orus"
+            />
             
             <p className="text-charcoal-300 leading-relaxed">
               Error messages include the file, line and column as well as a short stack trace.
@@ -465,14 +446,13 @@ fn main() {
               <li><code className="bg-charcoal-800 px-2 py-1 rounded text-gold-400">float(text)</code> - Parse float</li>
             </ul>
             
-            <Card className="bg-charcoal-900 p-4">
-              <pre className="text-charcoal-200 font-fira">
-{`let arr: [i32; 1] = [1]
+            <SyntaxHighlighter
+              code={`let arr: [i32; 1] = [1]
 reserve(arr, 10) // preallocate capacity
 push(arr, 2)
 print(len(arr))`}
-              </pre>
-            </Card>
+              language="orus"
+            />
           </div>
         )
       };

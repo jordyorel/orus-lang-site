@@ -2,6 +2,7 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import DocsSidebar from '@/components/DocsSidebar';
+import SyntaxHighlighter from '@/components/SyntaxHighlighter';
 import { Book, ArrowRight, Code, Zap, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -162,13 +163,10 @@ for i in 0..5 {
                 Here's an overview of key Orus syntax including variables, structs, methods, and pattern matching:
               </p>
               
-              <div className="bg-charcoal-900 rounded-lg p-4 overflow-x-auto">
-                <pre className="text-sm">
-                  <code className="text-charcoal-200 font-fira leading-relaxed">
-                    {exampleCode}
-                  </code>
-                </pre>
-              </div>
+              <SyntaxHighlighter 
+                code={exampleCode}
+                language="orus"
+              />
             </Card>
 
             {/* Next Steps */}
