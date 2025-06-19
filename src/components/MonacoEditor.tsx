@@ -60,32 +60,10 @@ const MonacoEditor = ({
 
   return (
     <div className="flex flex-col bg-charcoal-900 text-charcoal-100 h-full">
-      {/* Toolbar */}
-      <div className="bg-charcoal-800 px-4 py-2 border-b border-charcoal-700 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-charcoal-300">Orus Editor</span>
-          <div className="w-2 h-2 bg-gold-400 rounded-full"></div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={runCode}
-            className="px-3 py-1 bg-gold-600 hover:bg-gold-700 text-charcoal-900 text-sm rounded transition-colors"
-          >
-            Run
-          </button>
-          <button
-            onClick={() => setIsOutputVisible(!isOutputVisible)}
-            className="px-3 py-1 bg-charcoal-600 hover:bg-charcoal-700 text-charcoal-100 text-sm rounded transition-colors"
-          >
-            {isOutputVisible ? 'Hide Output' : 'Show Output'}
-          </button>
-        </div>
-      </div>
-
-      {/* Editor */}
+      {/* Editor - no borders, fills entire space */}
       <div className="flex bg-charcoal-950 text-charcoal-100 font-mono text-sm flex-1">
         {/* Line numbers */}
-        <div className="bg-charcoal-900 px-3 py-4 text-charcoal-500 select-none border-r border-charcoal-700 min-w-[3rem]">
+        <div className="bg-charcoal-900 px-3 py-4 text-charcoal-500 select-none min-w-[3rem]">
           {lineNumbers.map((num, index) => (
             <div key={index} className="leading-6 text-right">
               {num}

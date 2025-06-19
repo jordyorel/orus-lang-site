@@ -1,5 +1,4 @@
 
-import PlaygroundHeader from '@/components/playground/PlaygroundHeader';
 import PlaygroundToolbar from '@/components/playground/PlaygroundToolbar';
 import CodeEditor from '@/components/playground/CodeEditor';
 import OutputPanel from '@/components/playground/OutputPanel';
@@ -48,7 +47,7 @@ const Playground = () => {
         />
       </div>
 
-      {/* Main Content Area with Resizable Panels */}
+      {/* Main Content Area */}
       <div className="flex-1 min-h-0">
         {showOutputPanel ? (
           <ResizablePanelGroup direction="vertical" className="h-full">
@@ -65,8 +64,10 @@ const Playground = () => {
             </ResizablePanel>
           </ResizablePanelGroup>
         ) : (
-          /* Full Code Editor when no output */
-          <CodeEditor code={code} onChange={setCode} />
+          /* Full Code Editor when no output - no borders or padding */
+          <div className="h-full">
+            <CodeEditor code={code} onChange={setCode} />
+          </div>
         )}
       </div>
       
