@@ -1,7 +1,6 @@
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ExamplesSidebar from './ExamplesSidebar';
 import { CodeExample } from '@/types/playground';
 
 interface PlaygroundSidebarProps {
@@ -17,15 +16,17 @@ const PlaygroundSidebar = ({
   examples, 
   onExampleSelect 
 }: PlaygroundSidebarProps) => {
+  // Don't render sidebar if no examples
+  if (!examples || examples.length === 0) {
+    return null;
+  }
+
   return (
     <>
       {/* Sidebar - Always dark */}
       <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden border-r border-charcoal-600 flex-shrink-0 bg-charcoal-900`}>
         <div className="h-full p-4">
-          <ExamplesSidebar 
-            examples={examples} 
-            onExampleSelect={onExampleSelect} 
-          />
+          {/* Content removed since we're not showing examples */}
         </div>
       </div>
 

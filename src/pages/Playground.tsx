@@ -5,7 +5,6 @@ import PlaygroundContent from '@/components/playground/PlaygroundContent';
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePlayground } from '@/hooks/usePlayground';
-import { playgroundExamples } from '@/data/playgroundExamples';
 import { Toaster } from '@/components/ui/toaster';
 import { useEffect } from 'react';
 
@@ -31,7 +30,6 @@ const Playground = () => {
   useEffect(() => {
     console.log('Playground component mounted');
     console.log('Code length:', code.length);
-    console.log('Examples count:', playgroundExamples.length);
     console.log('Sidebar open:', sidebarOpen);
   }, [code, sidebarOpen]);
 
@@ -56,7 +54,7 @@ const Playground = () => {
         <PlaygroundSidebar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
-          examples={playgroundExamples}
+          examples={[]}
           onExampleSelect={handleExampleSelect}
         />
 
