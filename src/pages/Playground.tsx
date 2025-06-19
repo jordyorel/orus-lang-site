@@ -32,6 +32,8 @@ const Playground = () => {
 
   console.log('Playground rendering with code:', code.substring(0, 50) + '...');
 
+  const showOutputPanel = isRunning || output;
+
   return (
     <div className="h-screen bg-charcoal-900 flex flex-col">
       {/* Top Toolbar */}
@@ -48,19 +50,24 @@ const Playground = () => {
 
       {/* Main Content Area with Resizable Panels */}
       <div className="flex-1 min-h-0">
-        <ResizablePanelGroup direction="vertical" className="h-full">
-          {/* Code Editor */}
-          <ResizablePanel defaultSize={70} minSize={30}>
-            <CodeEditor code={code} onChange={setCode} />
-          </ResizablePanel>
+        {showOutputPanel ? (
+          <ResizablePanelGroup direction="vertical" className="h-full">
+            {/* Code Editor */}
+            <ResizablePanel defaultSize={70} minSize={30}>
+              <CodeEditor code={code} onChange={setCode} />
+            </ResizablePanel>
 
-          <ResizableHandle withHandle className="bg-charcoal-700 hover:bg-gold-500 transition-colors" />
+            <ResizableHandle withHandle className="bg-charcoal-700 hover:bg-gold-500 transition-colors" />
 
-          {/* Output Panel */}
-          <ResizablePanel defaultSize={30} minSize={20}>
-            <OutputPanel output={output} isRunning={isRunning} onClear={clearOutput} />
-          </ResizablePanel>
-        </ResizablePanelGroup>
+            {/* Output Panel */}
+            <ResizablePanel defaultSize={30} minSize={20}>
+              <OutputPanel output={output} isRunning={isRunning} onClear={clearOutput} />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        ) : (
+          /* Full Code Editor when no output */
+          <CodeEditor code={code} onChange={setCode} />
+        )}
       </div>
       
       <Toaster />
