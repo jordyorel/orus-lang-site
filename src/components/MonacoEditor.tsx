@@ -12,7 +12,7 @@ interface MonacoEditorProps {
 const MonacoEditor = ({ 
   value, 
   onChange,
-  language = 'rust',
+  language = 'orus',
   height = '100%',
   forceDarkMode = false 
 }: MonacoEditorProps) => {
@@ -47,33 +47,33 @@ const MonacoEditor = ({
 
   const syntaxHighlight = (code: string) => {
     return code
-      // Keywords
+      // Keywords - using gold color for keywords
       .replace(/(fn|let|mut|pub|struct|enum|impl|match|if|else|for|while|loop|break|continue|return|use|mod|const|static|trait|type|where|unsafe|async|await|move|ref|in|as|crate|super|self|Self)/g, 
-        '<span style="color: #ff7b72;">$1</span>')
-      // Types
+        '<span style="color: #f59e0b;">$1</span>')
+      // Types - using lighter gold
       .replace(/\b(i8|i16|i32|i64|i128|isize|u8|u16|u32|u64|u128|usize|f32|f64|bool|char|str|String|Vec|Option|Result|Box|Rc|Arc|RefCell|Mutex|HashMap|HashSet)\b/g,
-        '<span style="color: #79c0ff;">$1</span>')
-      // String literals
+        '<span style="color: #fbbf24;">$1</span>')
+      // String literals - using light charcoal
       .replace(/(r#*"[^"]*"#*|"[^"]*"|'[^']*')/g, 
-        '<span style="color: #a5d6ff;">$1</span>')
-      // Comments
+        '<span style="color: #b0b0b0;">$1</span>')
+      // Comments - using muted charcoal
       .replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, 
-        '<span style="color: #8b949e;">$1</span>')
-      // Numbers
+        '<span style="color: #6d6d6d;">$1</span>')
+      // Numbers - using gold
       .replace(/\b(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?[fF]?)\b/g, 
-        '<span style="color: #79c0ff;">$1</span>')
-      // Macros
+        '<span style="color: #fcd34d;">$1</span>')
+      // Macros - using bright gold
       .replace(/(\w+!)/g,
-        '<span style="color: #d2a8ff;">$1</span>')
-      // Boolean literals
+        '<span style="color: #f59e0b;">$1</span>')
+      // Boolean literals - using gold
       .replace(/\b(true|false)\b/g,
-        '<span style="color: #79c0ff;">$1</span>');
+        '<span style="color: #fbbf24;">$1</span>');
   };
 
   return (
-    <div className="flex h-full bg-gray-900 text-gray-100 font-mono text-sm" style={{ height }}>
+    <div className="flex h-full bg-charcoal-950 text-charcoal-100 font-fira text-sm" style={{ height }}>
       {/* Line numbers */}
-      <div className="bg-gray-800 px-3 py-4 text-gray-500 select-none border-r border-gray-700 min-w-[3rem]">
+      <div className="bg-charcoal-900 px-3 py-4 text-charcoal-500 select-none border-r border-charcoal-700 min-w-[3rem]">
         {lineNumbers.map((num, index) => (
           <div key={index} className="leading-6 text-right">
             {num}
@@ -97,12 +97,12 @@ const MonacoEditor = ({
           value={value}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          className="absolute inset-0 w-full h-full p-4 bg-transparent text-gray-100 leading-6 resize-none outline-none border-none whitespace-pre-wrap break-words"
+          className="absolute inset-0 w-full h-full p-4 bg-transparent text-charcoal-100 leading-6 resize-none outline-none border-none whitespace-pre-wrap break-words"
           style={{
-            fontFamily: '"JetBrains Mono", "Fira Code", Monaco, Menlo, "Ubuntu Mono", monospace',
-            caretColor: '#ffffff'
+            fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
+            caretColor: '#f59e0b'
           }}
-          placeholder="Write your Rust code here..."
+          placeholder="Write your Orus code here..."
           spellCheck={false}
         />
       </div>
