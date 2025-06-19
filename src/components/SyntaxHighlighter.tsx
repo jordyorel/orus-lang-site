@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface SyntaxHighlighterProps {
@@ -14,6 +13,7 @@ interface Token {
 }
 
 const SyntaxHighlighter = ({ code, language = 'orus', className = '' }: SyntaxHighlighterProps) => {
+  
   const tokenizeOrusCode = (code: string): Token[] => {
     const tokens: Token[] = [];
     const lines = code.split('\n');
@@ -139,7 +139,7 @@ const SyntaxHighlighter = ({ code, language = 'orus', className = '' }: SyntaxHi
 
   return (
     <div className={`bg-charcoal-900 rounded-lg p-4 overflow-x-auto ${className}`}>
-      <pre className="text-sm font-mono leading-relaxed">
+      <pre className="text-sm font-mono leading-relaxed text-left">
         <code className="text-charcoal-200">
           {renderHighlightedCode()}
         </code>
