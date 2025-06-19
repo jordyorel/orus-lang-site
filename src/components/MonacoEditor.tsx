@@ -59,11 +59,11 @@ const MonacoEditor = ({
   };
 
   return (
-    <div className="flex flex-col bg-charcoal-900 text-charcoal-100 h-full">
-      {/* Editor - no borders, fills entire space */}
+    <div className="flex flex-col bg-charcoal-900 text-charcoal-100 h-full border border-charcoal-700">
+      {/* Editor with borders */}
       <div className="flex bg-charcoal-950 text-charcoal-100 font-mono text-sm flex-1">
         {/* Line numbers */}
-        <div className="bg-charcoal-900 px-3 py-4 text-charcoal-500 select-none min-w-[3rem]">
+        <div className="bg-charcoal-900 px-3 py-4 text-charcoal-500 select-none border-r border-charcoal-700 min-w-[3rem]">
           {lineNumbers.map((num, index) => (
             <div key={index} className="leading-6 text-right">
               {num}
