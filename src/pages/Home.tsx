@@ -1,7 +1,7 @@
-
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ArrowRight, Zap, Shield, Cpu, Users } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, Zap, Shield, Cpu, Users, Code2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
@@ -54,57 +54,64 @@ print(p.x)`;
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-gold-500/10 via-transparent to-gold-500/10"></div>
+        
+        {/* Language Version Badge - Top Right */}
+        <div className="absolute top-6 right-6 z-10">
+          <Badge className="bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30 text-gold-300 px-4 py-2 text-sm font-medium backdrop-blur-sm shadow-lg hover:shadow-gold-500/20 transition-all duration-300">
+            <Code2 className="w-4 h-4 mr-2" />
+            v0.1.0-alpha
+          </Badge>
+        </div>
+
         <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-32">
-          <div className="text-center animate-fade-in">
-            {/* Logo */}
-            <div className="flex justify-center mb-8">
-              <img 
-                src="/orus.png" 
-                alt="Orus Language Logo" 
-                className="w-20 h-20 object-contain"
-                onError={(e) => {
-                  console.log('Logo failed to load');
-                  e.currentTarget.style.display = 'none';
-                }}
-                onLoad={() => console.log('Logo loaded successfully')}
-              />
-            </div>
-            
-            {/* Hero Title */}
-            <h1 className="text-5xl lg:text-7xl font-bold mb-6">
-              <span className="text-white">The </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-gold-600">
-                Orus
-              </span>
-            </h1>
-            <h2 className="text-2xl lg:text-4xl font-light text-charcoal-300 mb-8">
-              Programming Language
-            </h2>
-            
-            {/* Hero Tagline */}
-            <p className="text-xl lg:text-2xl text-charcoal-400 max-w-3xl mx-auto mb-12 leading-relaxed">
-              An experimental interpreted language influenced by modern scripting languages 
-              and Rust-like syntax. Build fast, safe, and expressive applications.
-            </p>
-            
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/install">
-                <Button size="lg" className="bg-gold-500 hover:bg-gold-600 text-charcoal-950 font-semibold px-8 py-3 text-lg">
-                  Get Started
-                  <ArrowRight className="ml-2" size={20} />
-                </Button>
-              </Link>
-              <Link to="/play">
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="border-gold-500/50 text-gold-400 hover:bg-gold-500/10 px-8 py-3 text-lg"
-                >
-                  Try Online
-                </Button>
-              </Link>
-            </div>
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <img 
+              src="/orus.png" 
+              alt="Orus Language Logo" 
+              className="w-20 h-20 object-contain"
+              onError={(e) => {
+                console.log('Logo failed to load');
+                e.currentTarget.style.display = 'none';
+              }}
+              onLoad={() => console.log('Logo loaded successfully')}
+            />
+          </div>
+          
+          {/* Hero Title */}
+          <h1 className="text-5xl lg:text-7xl font-bold mb-6">
+            <span className="text-white">The </span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-gold-600">
+              Orus
+            </span>
+          </h1>
+          <h2 className="text-2xl lg:text-4xl font-light text-charcoal-300 mb-8">
+            Programming Language
+          </h2>
+          
+          {/* Hero Tagline */}
+          <p className="text-xl lg:text-2xl text-charcoal-400 max-w-3xl mx-auto mb-12 leading-relaxed">
+            An experimental interpreted language influenced by modern scripting languages 
+            and Rust-like syntax. Build fast, safe, and expressive applications.
+          </p>
+          
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/install">
+              <Button size="lg" className="bg-gold-500 hover:bg-gold-600 text-charcoal-950 font-semibold px-8 py-3 text-lg">
+                Get Started
+                <ArrowRight className="ml-2" size={20} />
+              </Button>
+            </Link>
+            <Link to="/play">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="border-gold-500/50 text-gold-400 hover:bg-gold-500/10 px-8 py-3 text-lg"
+              >
+                Try Online
+              </Button>
+            </Link>
           </div>
           
           {/* Code Example */}
