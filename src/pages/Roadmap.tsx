@@ -16,7 +16,7 @@ const Roadmap = () => {
         'Impl blocks with method calls (ROP_CALL_METHOD)',
         'Multi-argument function calls with proper register allocation',
         'Direct register VM compilation infrastructure',
-        'Comprehensive test coverage (15 test cases)'
+        'Comprehensive test coverage (15+ test cases)'
       ],
       icon: CheckCircle,
       color: 'green',
@@ -301,9 +301,9 @@ const Roadmap = () => {
               <h3 className="text-xl font-semibold text-white">Quality Standards</h3>
             </div>
             <ul className="space-y-2 text-charcoal-300 text-sm">
-              <li>• Test coverage > 80% for all phases</li>
-              <li>• Performance regression < 10%</li>
-              <li>• Memory usage regression < 15%</li>
+              <li>• Test coverage &gt; 80% for all phases</li>
+              <li>• Performance regression &lt; 10%</li>
+              <li>• Memory usage regression &lt; 15%</li>
               <li>• Feature branch development process</li>
               <li>• Comprehensive integration testing</li>
             </ul>
