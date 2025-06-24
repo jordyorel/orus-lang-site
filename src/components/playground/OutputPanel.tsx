@@ -1,5 +1,5 @@
 
-import { Terminal, X } from 'lucide-react';
+import { Terminal, X, Trash2 } from 'lucide-react';
 import { OutputPanelProps } from '@/types/playground';
 import { Button } from '@/components/ui/button';
 
@@ -13,14 +13,26 @@ const OutputPanel = ({ output, isRunning, onClear }: OutputPanelProps) => {
             Output
           </button>
         </div>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onClear}
-          className="text-charcoal-400 hover:text-charcoal-200 p-2 mr-2"
-        >
-          Close
-        </Button>
+        <div className="flex items-center space-x-2 mr-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClear}
+            className="text-charcoal-400 hover:text-charcoal-200 p-2"
+            title="Clear output"
+          >
+            <Trash2 size={16} />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClear}
+            className="text-charcoal-400 hover:text-charcoal-200 p-2"
+            title="Close panel"
+          >
+            <X size={16} />
+          </Button>
+        </div>
       </div>
 
       {/* Content Area */}
