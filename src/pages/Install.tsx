@@ -32,12 +32,6 @@ const Install = () => {
       command: 'brew install orus',
       id: 'homebrew'
     },
-    {
-      title: 'Cargo',
-      description: 'Install from source using Rust\'s package manager',
-      command: 'cargo install orus',
-      id: 'cargo'
-    }
   ];
 
   const requirements = [
