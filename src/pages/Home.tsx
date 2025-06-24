@@ -80,8 +80,8 @@ print(p.x)`;
           
           {/* Hero Tagline */}
           <p className="text-xl lg:text-2xl text-charcoal-400 max-w-3xl mx-auto mb-12 leading-relaxed">
-            An experimental interpreted language influenced by modern scripting languages 
-            and Rust-like syntax. Build fast, safe, and expressive applications.
+            An experimental interpreted language influenced by modern languages. 
+            Build fast, safe, and expressive applications.
           </p>
           
           {/* CTA Buttons */}
