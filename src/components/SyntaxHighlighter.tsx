@@ -10,53 +10,81 @@ const SyntaxHighlighter = ({ code, language = 'orus', className = '' }: SyntaxHi
   const highlightSyntax = (code: string): string => {
     if (!code) return '';
 
-    // First, let's work with the original code without escaping
-    let highlightedCode = code;
+    // Work with original code and build highlighted version step by step
+    let result = code;
 
-    // Apply syntax highlighting to the original code
-    highlightedCode = highlightedCode
-      // Comments (do this first to avoid interfering with other patterns)
-      .replace(/(\/\/[^\r\n]*)/g, '<span class="text-gray-500">$1</span>')
-      // Block comments (multi-line)
-      .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="text-gray-500">$1</span>')
-      // Strings (handle both single and double quotes)
-      .replace(/("(?:[^"\\]|\\.)*")/g, '<span class="text-green-400">$1</span>')
-      .replace(/('(?:[^'\\]|\\.)*')/g, '<span class="text-green-400">$1</span>')
-      // Numbers (integers and floats)
-      .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="text-orange-400">$1</span>')
+    // Define all our patterns and their replacements
+    const patterns = [
+      // Comments first (to avoid interfering with other patterns)
+      { pattern: /(\/\/[^\r\n]*)/g, replacement: '{{COMMENT_START}}$1{{COMMENT_END}}' },
+      { pattern: /(\/\*[\s\S]*?\*\/)/g, replacement: '{{COMMENT_START}}$1{{COMMENT_END}}' },
+      
+      // Strings (both single and double quotes)
+      { pattern: /("(?:[^"\\]|\\.)*")/g, replacement: '{{STRING_START}}$1{{STRING_END}}' },
+      { pattern: /('(?:[^'\\]|\\.)*')/g, replacement: '{{STRING_START}}$1{{STRING_END}}' },
+      
+      // Numbers
+      { pattern: /\b(\d+(?:\.\d+)?)\b/g, replacement: '{{NUMBER_START}}$1{{NUMBER_END}}' },
+      
       // Keywords
-      .replace(/\b(fn|let|mut|const|static|struct|impl|if|elif|else|match|for|while|in|return|use|pub|try|catch|as|break|continue|true|false|nil|loop|enum)\b/g, '<span class="text-purple-400">$1</span>')
+      { pattern: /\b(fn|let|mut|const|static|struct|impl|if|elif|else|match|for|while|in|return|use|pub|try|catch|as|break|continue|true|false|nil|loop|enum)\b/g, replacement: '{{KEYWORD_START}}$1{{KEYWORD_END}}' },
+      
       // Types
-      .replace(/\b(i32|i64|u32|u64|f64|bool|string|void|self|Option|Result)\b/g, '<span class="text-blue-400">$1</span>')
+      { pattern: /\b(i32|i64|u32|u64|f64|bool|string|void|self|Option|Result)\b/g, replacement: '{{TYPE_START}}$1{{TYPE_END}}' },
+      
       // Built-in functions (only when followed by parentheses)
-      .replace(/\b(print|println|input|len|push|pop|reserve|type_of|timestamp|int|float|read_file|write_file|split|join|trim|upper|lower|contains|starts_with|ends_with|abs|sqrt|pow|sin|cos|tan|floor|ceil|round|random|random_int|sleep|sort|reverse|insert|remove)(?=\s*\()/g, '<span class="text-yellow-400">$1</span>')
-      // Function names (before parentheses, but not built-ins that are already highlighted)
-      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, (match, name) => {
-        // Don't highlight if it's already been highlighted as a built-in
-        if (match.includes('<span class="text-yellow-400">')) {
-          return match;
-        }
-        return `<span class="text-yellow-300">${name}</span>(`;
-      })
-      // Struct/Type names (capitalized identifiers, but not if already highlighted)
-      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, (match, name) => {
-        // Don't highlight if it's already inside a span
-        if (match.includes('<span') || match.includes('</span>')) {
-          return match;
-        }
-        return `<span class="text-cyan-400">${name}</span>`;
-      });
+      { pattern: /\b(print|println|input|len|push|pop|reserve|type_of|timestamp|int|float|read_file|write_file|split|join|trim|upper|lower|contains|starts_with|ends_with|abs|sqrt|pow|sin|cos|tan|floor|ceil|round|random|random_int|sleep|sort|reverse|insert|remove)(?=\s*\()/g, replacement: '{{BUILTIN_START}}$1{{BUILTIN_END}}' },
+      
+      // Function names (not built-ins, before parentheses)
+      { pattern: /\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, replacement: (match: string, name: string) => {
+        // Skip if it's already marked as builtin
+        if (match.includes('{{BUILTIN_')) return match;
+        return `{{FUNCTION_START}}${name}{{FUNCTION_END}}(`;
+      }},
+      
+      // Struct/Type names (capitalized identifiers)
+      { pattern: /\b([A-Z][a-zA-Z0-9_]*)\b/g, replacement: (match: string, name: string) => {
+        // Skip if already marked with any tag
+        if (match.includes('{{')) return match;
+        return `{{STRUCT_START}}${name}{{STRUCT_END}}`;
+      }}
+    ];
 
-    // Now escape HTML entities AFTER applying syntax highlighting
-    highlightedCode = highlightedCode
+    // Apply all patterns
+    patterns.forEach(({ pattern, replacement }) => {
+      if (typeof replacement === 'string') {
+        result = result.replace(pattern, replacement);
+      } else {
+        result = result.replace(pattern, replacement);
+      }
+    });
+
+    // Now escape HTML entities
+    result = result
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      // But restore our span tags
-      .replace(/&lt;span class="([^"]*)"&gt;/g, '<span class="$1">')
-      .replace(/&lt;\/span&gt;/g, '</span>');
+      .replace(/>/g, '&gt;');
 
-    return highlightedCode;
+    // Finally, replace our markers with actual HTML spans
+    result = result
+      .replace(/\{\{COMMENT_START\}\}/g, '<span class="text-gray-500">')
+      .replace(/\{\{COMMENT_END\}\}/g, '</span>')
+      .replace(/\{\{STRING_START\}\}/g, '<span class="text-green-400">')
+      .replace(/\{\{STRING_END\}\}/g, '</span>')
+      .replace(/\{\{NUMBER_START\}\}/g, '<span class="text-orange-400">')
+      .replace(/\{\{NUMBER_END\}\}/g, '</span>')
+      .replace(/\{\{KEYWORD_START\}\}/g, '<span class="text-purple-400">')
+      .replace(/\{\{KEYWORD_END\}\}/g, '</span>')
+      .replace(/\{\{TYPE_START\}\}/g, '<span class="text-blue-400">')
+      .replace(/\{\{TYPE_END\}\}/g, '</span>')
+      .replace(/\{\{BUILTIN_START\}\}/g, '<span class="text-yellow-400">')
+      .replace(/\{\{BUILTIN_END\}\}/g, '</span>')
+      .replace(/\{\{FUNCTION_START\}\}/g, '<span class="text-yellow-300">')
+      .replace(/\{\{FUNCTION_END\}\}/g, '</span>')
+      .replace(/\{\{STRUCT_START\}\}/g, '<span class="text-cyan-400">')
+      .replace(/\{\{STRUCT_END\}\}/g, '</span>');
+
+    return result;
   };
 
   const renderHighlightedCode = () => {
