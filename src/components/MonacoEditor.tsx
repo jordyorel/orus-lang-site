@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -554,7 +555,7 @@ const MonacoEditor = ({
             className="w-full h-full p-4 bg-transparent text-transparent resize-none outline-none border-none whitespace-pre-wrap break-words relative z-20"
             style={{
               fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
-              caretColor: '#f59e0b',
+              caretColor: '#ffffff',
               fontSize: '14px',
               lineHeight: '24px'
             }}
