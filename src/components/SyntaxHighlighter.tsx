@@ -1,4 +1,8 @@
 
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Copy, Check } from 'lucide-react';
+
 interface SyntaxHighlighterProps {
   code: string;
   language?: string;
@@ -6,6 +10,17 @@ interface SyntaxHighlighterProps {
 }
 
 const SyntaxHighlighter = ({ code, language = 'orus', className = '' }: SyntaxHighlighterProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
+  };
 
   const highlightSyntax = (code: string): string => {
     if (!code) return '';
@@ -67,12 +82,27 @@ const SyntaxHighlighter = ({ code, language = 'orus', className = '' }: SyntaxHi
   };
 
   return (
-    <div className={`bg-charcoal-900 rounded-lg p-4 overflow-x-auto ${className}`}>
-      <pre className="text-sm font-mono leading-6 text-left">
-        <code className="text-charcoal-200">
-          {renderHighlightedCode()}
-        </code>
-      </pre>
+    <div className={`bg-charcoal-900 rounded-lg overflow-x-auto relative group ${className}`}>
+      <div className="flex justify-between items-center px-4 py-2 border-b border-charcoal-700">
+        <span className="text-charcoal-400 text-sm font-medium">
+          {language === 'orus' ? 'Orus' : language}
+        </span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={copyToClipboard}
+          className="h-8 w-8 p-0 text-charcoal-400 hover:text-white hover:bg-charcoal-700"
+        >
+          {copied ? <Check size={16} /> : <Copy size={16} />}
+        </Button>
+      </div>
+      <div className="p-4">
+        <pre className="text-sm font-mono leading-6 text-left">
+          <code className="text-charcoal-200">
+            {renderHighlightedCode()}
+          </code>
+        </pre>
+      </div>
     </div>
   );
 };
