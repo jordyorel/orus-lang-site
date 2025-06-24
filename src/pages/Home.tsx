@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -62,7 +61,7 @@ print(p.x)`;
           <div className="flex justify-end">
             <Badge className="bg-gold-500/90 border-2 border-gold-400 text-charcoal-950 px-6 py-3 text-base font-bold backdrop-blur-sm shadow-xl shadow-gold-500/30 hover:shadow-gold-400/40 transition-all duration-300 hover:bg-gold-400 hover:scale-105">
               <Code2 className="w-5 h-5 mr-2 text-charcoal-900" />
-              <span className="text-charcoal-900 font-mono tracking-wide">v0.1.0-alpha</span>
+              <span className="text-charcoal-900 font-mono tracking-wide">v0.2.0-beta</span>
             </Badge>
           </div>
         </div>
