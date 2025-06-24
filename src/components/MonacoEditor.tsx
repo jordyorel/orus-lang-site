@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface MonacoEditorProps {
   value: string;
@@ -48,34 +49,36 @@ const MonacoEditor = ({
   return (
     <div className="flex flex-col bg-charcoal-900 text-charcoal-100 h-full border border-charcoal-700">
       {/* Editor with borders */}
-      <div className="flex bg-charcoal-950 text-charcoal-100 font-mono text-sm flex-1">
-        {/* Line numbers */}
-        <div className="bg-charcoal-900 px-3 py-4 text-charcoal-500 select-none border-r border-charcoal-700 min-w-[3rem]">
-          {lineNumbers.map((num, index) => (
-            <div key={index} className="leading-6 text-right">
-              {num}
-            </div>
-          ))}
-        </div>
+      <div className="flex bg-charcoal-950 text-charcoal-100 font-mono text-sm flex-1 min-h-0">
+        {/* Line numbers - scrollable */}
+        <ScrollArea className="bg-charcoal-900 border-r border-charcoal-700 min-w-[3rem]">
+          <div className="px-3 py-4 text-charcoal-500 select-none">
+            {lineNumbers.map((num, index) => (
+              <div key={index} className="leading-6 text-right">
+                {num}
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
         
-        {/* Editor area */}
-        <div className="flex-1 relative">
-          {/* Actual textarea */}
-          <textarea
-            ref={textareaRef}
-            value={value}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            className="absolute inset-0 w-full h-full p-4 bg-transparent leading-6 resize-none outline-none border-none whitespace-pre-wrap break-words text-charcoal-100"
-            style={{
-              fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
-              caretColor: '#f59e0b',
-              color: '#e5e7eb',
-              zIndex: 2
-            }}
-            placeholder="Write your Orus code here..."
-            spellCheck={false}
-          />
+        {/* Editor area - scrollable */}
+        <div className="flex-1 relative min-w-0">
+          <ScrollArea className="h-full">
+            <textarea
+              ref={textareaRef}
+              value={value}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              className="w-full min-h-full p-4 bg-transparent leading-6 resize-none outline-none border-none whitespace-pre-wrap break-words text-charcoal-100"
+              style={{
+                fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
+                caretColor: '#f59e0b',
+                color: '#e5e7eb'
+              }}
+              placeholder="Write your Orus code here..."
+              spellCheck={false}
+            />
+          </ScrollArea>
         </div>
       </div>
     </div>
