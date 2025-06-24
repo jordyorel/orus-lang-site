@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useUrlCodeLoader } from './useUrlCodeLoader';
 import { useCodeExecution } from './useCodeExecution';
@@ -13,7 +14,11 @@ export const usePlayground = () => {
   // Load code from URL parameter on mount
   useUrlCodeLoader(setCode);
 
-  const { output, isRunning, runCode, clearOutput } = useCodeExecution();
+  const { output, isRunning, runCode: executeCode, clearOutput } = useCodeExecution();
+
+  const runCode = () => {
+    executeCode(code);
+  };
 
   const {
     resetCode,

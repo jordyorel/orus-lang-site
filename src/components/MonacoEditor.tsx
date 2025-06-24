@@ -18,8 +18,6 @@ const MonacoEditor = ({
 }: MonacoEditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [lineNumbers, setLineNumbers] = useState<string[]>([]);
-  const [output, setOutput] = useState('');
-  const [isOutputVisible, setIsOutputVisible] = useState(false);
 
   useEffect(() => {
     const lines = value.split('\n');
@@ -45,17 +43,6 @@ const MonacoEditor = ({
         textarea.selectionStart = textarea.selectionEnd = start + 4;
       }, 0);
     }
-  };
-
-  const runCode = () => {
-    // Simulate code execution
-    setOutput(`Running Orus code...\n\nCode executed successfully!\nOutput: Hello\n\nExecution time: 23ms`);
-    setIsOutputVisible(true);
-  };
-
-  const clearOutput = () => {
-    setOutput('');
-    setIsOutputVisible(false);
   };
 
   return (
@@ -91,29 +78,6 @@ const MonacoEditor = ({
           />
         </div>
       </div>
-
-      {/* Output Section */}
-      {isOutputVisible && (
-        <div className="bg-charcoal-900 border-t border-charcoal-700">
-          <div className="px-4 py-2 bg-charcoal-800 border-b border-charcoal-700 flex items-center justify-between">
-            <span className="text-sm font-medium text-charcoal-300">Output</span>
-            <button
-              onClick={clearOutput}
-              className="px-2 py-1 bg-charcoal-600 hover:bg-charcoal-700 text-charcoal-100 text-xs rounded transition-colors"
-            >
-              Clear
-            </button>
-          </div>
-          <div 
-            className="p-4 font-mono text-sm text-charcoal-100 whitespace-pre-wrap overflow-auto resize-y min-h-[100px] max-h-[400px] bg-charcoal-950"
-            style={{
-              fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace'
-            }}
-          >
-            {output || 'No output yet. Click "Run" to execute your code.'}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,21 +1,24 @@
 
 import { useState, useCallback } from 'react';
-
-const EXAMPLE_OUTPUT = `Hello`;
+import { runOrusCode } from '@/utils/wasmLoader';
 
 export const useCodeExecution = () => {
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
 
-  const runCode = useCallback(async () => {
+  const runCode = useCallback(async (code: string) => {
     setIsRunning(true);
     setOutput('');
     
-    // Faster simulation
-    setTimeout(() => {
-      setOutput(EXAMPLE_OUTPUT);
+    try {
+      // Use the real Orus WASM compiler
+      const result = await runOrusCode(code);
+      setOutput(result);
+    } catch (error) {
+      setOutput(`Error: ${error}`);
+    } finally {
       setIsRunning(false);
-    }, 800);
+    }
   }, []);
 
   const clearOutput = useCallback(() => {
