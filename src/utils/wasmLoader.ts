@@ -15,8 +15,24 @@ export const loadOrusWasm = async (): Promise<OrusModule> => {
     const wasmResponse = await fetch('/orus-web.wasm');
     const wasmBytes = await wasmResponse.arrayBuffer();
     
-    // Initialize the WebAssembly module
-    const wasmModule = await WebAssembly.instantiate(wasmBytes);
+    // Create imports object - this is required for WASM instantiation
+    const imports = {
+      env: {
+        // Add any environment functions that the WASM module might need
+        memory: new WebAssembly.Memory({ initial: 256, maximum: 256 }),
+      },
+      wasi_snapshot_preview1: {
+        // WASI functions that might be needed
+        proc_exit: () => {},
+        fd_close: () => 0,
+        fd_seek: () => 0,
+        fd_write: () => 0,
+        fd_read: () => 0,
+      }
+    };
+    
+    // Initialize the WebAssembly module with imports
+    const wasmModule = await WebAssembly.instantiate(wasmBytes, imports);
     
     // Create the Orus module interface
     orusModule = {
