@@ -31,20 +31,28 @@ const DocFooter = ({ nextSection }: DocFooterProps) => {
     return currentIndex < sectionOrder.length - 1 ? sectionOrder[currentIndex + 1] : null;
   };
 
+  const handleNextClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePreviousClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const previousSection = getPreviousSection();
   const actualNextSection = getNextSection();
 
   return (
     <div className="flex justify-between items-center mt-8 pt-8 border-t border-charcoal-700">
       {previousSection ? (
-        <Link to={`/docs/${previousSection}`}>
+        <Link to={`/docs/${previousSection}`} onClick={handlePreviousClick}>
           <Button variant="outline" className="border-gold-500/50 text-gold-400">
             <ArrowLeft size={16} className="mr-2" />
             Previous
           </Button>
         </Link>
       ) : (
-        <Link to="/docs">
+        <Link to="/docs" onClick={handlePreviousClick}>
           <Button variant="outline" className="border-gold-500/50 text-gold-400">
             <ArrowLeft size={16} className="mr-2" />
             Back to Docs
@@ -53,7 +61,7 @@ const DocFooter = ({ nextSection }: DocFooterProps) => {
       )}
       
       {actualNextSection && (
-        <Link to={`/docs/${actualNextSection}`}>
+        <Link to={`/docs/${actualNextSection}`} onClick={handleNextClick}>
           <Button className="bg-gold-500 hover:bg-gold-600 text-charcoal-950">
             Next
             <ArrowRight size={16} className="ml-2" />
