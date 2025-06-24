@@ -1,6 +1,16 @@
 
 interface OrusModule {
-  compile_and_run: (code: string) => string;
+  initWebVM: () => void;
+  runSource: (code: string) => string;
+  freeWebVM: () => void;
+  getVersion: () => string;
+  setInputCallback: (callback: any) => void;
+  setOutputCallback: (callback: any) => void;
+  registerWebBuiltins: () => void;
+  getLastError: () => string;
+  clearLastError: () => void;
+  isVMReady: () => boolean;
+  resetVMState: () => void;
 }
 
 let orusModule: OrusModule | null = null;
@@ -58,43 +68,30 @@ export const loadOrusWasm = async (): Promise<OrusModule> => {
     console.log('WASM instance created successfully');
     console.log('Available exports:', Object.keys(wasmInstance.exports));
     
-    // Try to find the correct function name for compilation
-    const possibleFunctionNames = [
-      'compile_and_run',
-      'compile',
-      'run',
-      'execute',
-      'main',
-      'orus_compile',
-      'orus_run'
-    ];
+    // Get the required functions from WASM exports
+    const wasmExports = wasmInstance.exports;
     
-    let compileFunction: Function | null = null;
-    for (const name of possibleFunctionNames) {
-      if (typeof wasmInstance.exports[name] === 'function') {
-        compileFunction = wasmInstance.exports[name] as Function;
-        console.log(`Found compile function: ${name}`);
-        break;
+    // Verify required functions exist
+    const requiredFunctions = ['initWebVM', 'runSource', 'freeWebVM'];
+    for (const func of requiredFunctions) {
+      if (typeof wasmExports[func] !== 'function') {
+        throw new Error(`Required function '${func}' not found in WASM exports`);
       }
-    }
-    
-    if (!compileFunction) {
-      throw new Error(`No suitable compile function found. Available exports: ${Object.keys(wasmInstance.exports).join(', ')}`);
     }
     
     // Create the Orus module interface
     orusModule = {
-      compile_and_run: (code: string) => {
-        try {
-          console.log('Attempting to compile code:', code.substring(0, 100) + '...');
-          const result = compileFunction!(code);
-          console.log('Compilation result:', result);
-          return result || 'No output';
-        } catch (error) {
-          console.error('Runtime error during compilation:', error);
-          return `Runtime error: ${error}`;
-        }
-      }
+      initWebVM: wasmExports.initWebVM as () => void,
+      runSource: wasmExports.runSource as (code: string) => string,
+      freeWebVM: wasmExports.freeWebVM as () => void,
+      getVersion: wasmExports.getVersion as () => string,
+      setInputCallback: wasmExports.setInputCallback as (callback: any) => void,
+      setOutputCallback: wasmExports.setOutputCallback as (callback: any) => void,
+      registerWebBuiltins: wasmExports.registerWebBuiltins as () => void,
+      getLastError: wasmExports.getLastError as () => string,
+      clearLastError: wasmExports.clearLastError as () => void,
+      isVMReady: wasmExports.isVMReady as () => boolean,
+      resetVMState: wasmExports.resetVMState as () => void,
     };
     
     return orusModule;
@@ -104,10 +101,52 @@ export const loadOrusWasm = async (): Promise<OrusModule> => {
   }
 };
 
+let capturedOutput = '';
+
 export const runOrusCode = async (code: string): Promise<string> => {
   try {
     const module = await loadOrusWasm();
-    return module.compile_and_run(code);
+    
+    // Initialize the VM if not ready
+    if (!module.isVMReady()) {
+      module.initWebVM();
+      module.registerWebBuiltins();
+    }
+    
+    // Set up output callback to capture printed text
+    capturedOutput = '';
+    try {
+      module.setOutputCallback((text: string) => {
+        console.log('Captured output:', text);
+        capturedOutput += text;
+      });
+    } catch (e) {
+      console.warn('Could not set output callback:', e);
+    }
+    
+    // Clear any previous errors and output
+    module.clearLastError();
+    capturedOutput = '';
+    
+    // Run the source code
+    const result = module.runSource(code);
+    console.log('Raw result:', result);
+    console.log('Captured output:', capturedOutput);
+    
+    // Check for errors
+    const error = module.getLastError();
+    if (error) {
+      return `Error: ${error}`;
+    }
+    
+    // If we have captured output, use that; otherwise format the result
+    if (capturedOutput) {
+      return capturedOutput;
+    }
+    
+    // The result might be the actual output or a status code
+    // Let's return both for debugging
+    return result ? `Output: ${result}` : 'No output';
   } catch (error) {
     console.error('Compilation error:', error);
     return `Compilation error: ${error}`;
