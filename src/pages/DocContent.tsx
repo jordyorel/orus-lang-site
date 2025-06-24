@@ -21,7 +21,7 @@ const DocContent = () => {
           </div>
           
           {/* Main Content */}
-          <div className="flex-1 max-w-4xl">
+          <div className="flex-1 max-w-4xl min-w-0">
             <DocNavigation />
             
             {/* Content */}

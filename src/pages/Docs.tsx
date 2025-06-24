@@ -1,4 +1,3 @@
-
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import DocsSidebar from '@/components/DocsSidebar';
@@ -82,8 +81,7 @@ for i in 0..5 {
           </div>
           
           {/* Main Content */}
-          <div className="flex-1 max-w-4xl">
-            {/* Header */}
+          <div className="flex-1 max-w-4xl min-w-0">
             <div className="mb-12 animate-fade-in">
               <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6">
                 <span className="text-gold-400">Orus</span> Documentation
@@ -94,7 +92,6 @@ for i in 0..5 {
               </p>
             </div>
 
-            {/* Introduction */}
             <Card className="bg-charcoal-800/50 border-charcoal-700 p-8 mb-8">
               <h2 className="text-2xl font-semibold text-white mb-4">Introduction to Orus</h2>
               <p className="text-charcoal-300 mb-4 leading-relaxed">
@@ -123,7 +120,6 @@ for i in 0..5 {
               </div>
             </Card>
 
-            {/* Quick Links */}
             <div className="mb-8">
               <h2 className="text-2xl font-semibold text-white mb-6">Quick Start</h2>
               <div className="grid md:grid-cols-2 gap-4">
@@ -156,7 +152,6 @@ for i in 0..5 {
               </div>
             </div>
 
-            {/* Code Example */}
             <Card className="bg-charcoal-800/50 border-charcoal-700 p-6 mb-8">
               <h3 className="text-xl font-semibold text-white mb-4">Example: Orus Language Features</h3>
               <p className="text-charcoal-400 mb-4">
@@ -169,7 +164,6 @@ for i in 0..5 {
               />
             </Card>
 
-            {/* Next Steps */}
             <Card className="bg-gradient-to-r from-gold-500/10 to-gold-600/10 border-gold-500/30 p-8">
               <h3 className="text-2xl font-semibold text-white mb-4">Ready to Start Learning?</h3>
               <p className="text-charcoal-300 mb-6">
