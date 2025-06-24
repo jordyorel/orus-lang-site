@@ -1,7 +1,6 @@
-
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Circle, Clock, Zap, Shield, Code, Sparkles, Cpu, Layers, Package, Settings, Globe, Database, Server, Tool, Users, Target } from 'lucide-react';
+import { CheckCircle, Circle, Clock, Zap, Shield, Code, Sparkles, Cpu, Layers, Package, Settings, Globe, Database, Server, Wrench, Users, Target } from 'lucide-react';
 
 const Roadmap = () => {
   const roadmapItems = [
@@ -445,6 +444,53 @@ const Roadmap = () => {
       </div>
     </div>
   );
+
+  function getStatusColor(status: string) {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-500/20 text-green-400 border-green-500/30';
+      case 'in-progress':
+        return 'bg-gold-500/20 text-gold-400 border-gold-500/30';
+      case 'planned':
+        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      case 'future':
+        return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
+      default:
+        return 'bg-charcoal-500/20 text-charcoal-400 border-charcoal-500/30';
+    }
+  }
+
+  function getStatusIcon(status: string) {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle size={16} className="text-green-400" />;
+      case 'in-progress':
+        return <Clock size={16} className="text-gold-400" />;
+      default:
+        return <Circle size={16} className="text-charcoal-400" />;
+    }
+  }
+
+  function getProgressColor(progress: string) {
+    const percent = parseInt(progress);
+    if (percent === 100) return 'bg-green-500';
+    if (percent > 50) return 'bg-gold-500';
+    if (percent > 0) return 'bg-blue-500';
+    return 'bg-charcoal-600';
+  }
+
+  function getFeatureStatusColor(status: string) {
+    switch (status) {
+      case 'complete':
+        return 'text-green-400';
+      case 'partial':
+        return 'text-gold-400';
+      case 'missing':
+        return 'text-red-400';
+      default:
+        return 'text-charcoal-400';
+    }
+  }
 };
 
 export default Roadmap;
