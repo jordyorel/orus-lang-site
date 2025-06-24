@@ -1,9 +1,3 @@
-var OrusModule = (() => {
-  var _scriptName = typeof document != 'undefined' ? document.currentScript?.src : undefined;
-  return (
-async function(moduleArg = {}) {
-  var moduleRtn;
-
 // include: shell.js
 // The Module object: Our interface to the outside world. We import
 // and export values on it. There are various ways Module can be used:
@@ -18,7 +12,7 @@ async function(moduleArg = {}) {
 // after the generated code, you will need to define   var Module = {};
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
-var Module = moduleArg;
+var Module = typeof Module != 'undefined' ? Module : {};
 
 // Determine the runtime environment we are in. You can customize this by
 // setting the ENVIRONMENT setting at compile time (see settings.js).
@@ -30,197 +24,6 @@ var ENVIRONMENT_IS_SHELL = false;
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: src/web/pre.js
-// Pre-JS script for Orus WebAssembly module
-// This script runs before the WASM module is loaded and sets up the environment
-
-var Module = Module || {};
-
-// Global variables for I/O callbacks
-Module.inputCallback = null;
-Module.outputCallback = null;
-
-// Output buffer for collecting print() calls
-Module.outputBuffer = "";
-
-// Set up input callback from JavaScript
-Module.setInput = function(callback) {
-    Module.inputCallback = callback;
-};
-
-// Set up output callback from JavaScript  
-Module.setOutput = function(callback) {
-    Module.outputCallback = callback;
-};
-
-// Override console output
-Module.print = function(text) {
-    if (Module.outputCallback) {
-        Module.outputCallback(text);
-    } else {
-        console.log('Orus Output:', text);
-    }
-};
-
-// Override console error output
-Module.printErr = function(text) {
-    if (Module.outputCallback) {
-        Module.outputCallback('Error: ' + text);
-    } else {
-        console.error('Orus Error:', text);
-    }
-};
-
-// Buffer stdout/stderr for custom handling
-Module.stdout = function(charCode) {
-    if (charCode === 10) { // newline
-        if (Module.outputCallback) {
-            Module.outputCallback(Module.outputBuffer);
-        }
-        Module.outputBuffer = "";
-    } else {
-        Module.outputBuffer += String.fromCharCode(charCode);
-    }
-};
-
-Module.stderr = Module.stdout; // Same handling for now
-
-// Set up the runtime when module is ready
-Module.onRuntimeInitialized = function() {
-    console.log('Orus WebAssembly module loaded successfully');
-    
-    // Ensure all exported functions are available
-    try {
-        // Get references to exported functions with error checking
-        if (typeof Module.ccall === 'function' && typeof Module.cwrap === 'function') {
-            Module._initWebVM = Module.cwrap('initWebVM', 'number', []);
-            Module._runSource = Module.cwrap('runSource', 'number', ['string']);
-            Module._freeWebVM = Module.cwrap('freeWebVM', 'void', []);
-            Module._getVersion = Module.cwrap('getVersion', 'string', []);
-            Module._getLastError = Module.cwrap('getLastError', 'string', []);
-            Module._clearLastError = Module.cwrap('clearLastError', 'void', []);
-            Module._isVMReady = Module.cwrap('isVMReady', 'boolean', []);
-            Module._resetVMState = Module.cwrap('resetVMState', 'void', []);
-            Module._getVMStackSize = Module.cwrap('getVMStackSize', 'number', []);
-            Module._getVMFrameCount = Module.cwrap('getVMFrameCount', 'number', []);
-            Module._getVMModuleCount = Module.cwrap('getVMModuleCount', 'number', []);
-            
-            console.log('Function wrappers created successfully');
-        } else {
-            throw new Error('ccall/cwrap not available');
-        }
-        
-        // Initialize the VM
-        var initResult = Module._initWebVM();
-        if (initResult !== 0) {
-            console.error('Failed to initialize Orus VM:', initResult);
-        } else {
-            console.log('Orus VM initialized successfully');
-            console.log('Orus version:', Module._getVersion());
-        }
-    } catch (error) {
-        console.error('Error setting up Orus VM:', error);
-        console.error('Available Module properties:', Object.keys(Module));
-    }
-    
-    // Notify that the module is ready
-    if (Module.onOrusReady) {
-        Module.onOrusReady();
-    }
-};
-
-// High-level API for easier use
-Module.Orus = {
-    // Initialize Orus (called automatically)
-    init: function() {
-        return Module._initWebVM();
-    },
-    
-    // Run Orus source code
-    run: function(source) {
-        if (!Module._isVMReady()) {
-            throw new Error('Orus VM is not ready');
-        }
-        
-        Module._clearLastError();
-        var result = Module._runSource(source);
-        
-        // Check for errors
-        if (result !== 0) {
-            var error = Module._getLastError();
-            if (error) {
-                throw new Error('Orus execution error: ' + error);
-            } else {
-                throw new Error('Orus execution failed with code: ' + result);
-            }
-        }
-        
-        return result;
-    },
-    
-    // Reset VM state for fresh execution
-    reset: function() {
-        Module._resetVMState();
-    },
-    
-    // Get version information
-    version: function() {
-        return Module._getVersion();
-    },
-    
-    // Get VM debugging information
-    getStats: function() {
-        return {
-            stackSize: Module._getVMStackSize(),
-            frameCount: Module._getVMFrameCount(),
-            moduleCount: Module._getVMModuleCount(),
-            isReady: Module._isVMReady()
-        };
-    },
-    
-    // Set input handler for input() function
-    onInput: function(callback) {
-        Module.setInput(callback);
-    },
-    
-    // Set output handler for print() function
-    onOutput: function(callback) {
-        Module.setOutput(callback);
-    },
-    
-    // Get last error without throwing
-    getLastError: function() {
-        return Module._getLastError();
-    },
-    
-    // Clear any error state
-    clearError: function() {
-        Module._clearLastError();
-    }
-};
-
-// Memory management helpers
-Module.allocateString = function(str) {
-    var len = lengthBytesUTF8(str) + 1;
-    var ptr = Module._malloc(len);
-    stringToUTF8(str, ptr, len);
-    return ptr;
-};
-
-Module.freeString = function(ptr) {
-    Module._free(ptr);
-};
-
-// Set up cleanup on page unload
-if (typeof window !== 'undefined') {
-    window.addEventListener('beforeunload', function() {
-        if (Module._freeWebVM) {
-            Module._freeWebVM();
-        }
-    });
-}
-
-console.log('Orus WebAssembly pre-script loaded');// end include: src/web/pre.js
 
 
 var arguments_ = [];
@@ -228,6 +31,10 @@ var thisProgram = './this.program';
 var quit_ = (status, toThrow) => {
   throw toThrow;
 };
+
+// In MODULARIZE mode _scriptName needs to be captured already at the very top of the page immediately when the page is parsed, so it is generated there
+// before the page load. In non-MODULARIZE modes generate it here.
+var _scriptName = typeof document != 'undefined' ? document.currentScript?.src : undefined;
 
 // `/` should be present at the end if `scriptDirectory` is not empty
 var scriptDirectory = '';
@@ -327,8 +134,6 @@ var isFileURI = (filename) => filename.startsWith('file://');
 // end include: runtime_exceptions.js
 // include: runtime_debug.js
 // end include: runtime_debug.js
-var readyPromiseResolve, readyPromiseReject;
-
 // Memory management
 
 var wasmMemory;
@@ -482,7 +287,6 @@ function abort(what) {
   /** @suppress {checkTypes} */
   var e = new WebAssembly.RuntimeError(what);
 
-  readyPromiseReject?.(e);
   // Throw the error whether or not MODULARIZE is set because abort is used
   // in code paths apart from instantiation where an exception is expected
   // to be thrown when abort is called.
@@ -492,7 +296,7 @@ function abort(what) {
 var wasmBinaryFile;
 
 function findWasmBinary() {
-    return locateFile('orus-web.wasm');
+    return locateFile('orus-simple.wasm');
 }
 
 function getBinarySync(file) {
@@ -3905,7 +3709,8 @@ var wasmImports = {
   /** @export */
   fd_write: _fd_write
 };
-var wasmExports = await createWasm();
+var wasmExports;
+createWasm();
 
 
 // include: postamble.js
@@ -3935,7 +3740,6 @@ function run() {
 
     initRuntime();
 
-    readyPromiseResolve?.(Module);
     Module['onRuntimeInitialized']?.();
 
     postRun();
@@ -3967,35 +3771,3 @@ run();
 
 // end include: postamble.js
 
-// include: postamble_modularize.js
-// In MODULARIZE mode we wrap the generated code in a factory function
-// and return either the Module itself, or a promise of the module.
-//
-// We assign to the `moduleRtn` global here and configure closure to see
-// this as and extern so it won't get minified.
-
-if (runtimeInitialized)  {
-  moduleRtn = Module;
-} else {
-  // Set up the promise that indicates the Module is initialized
-  moduleRtn = new Promise((resolve, reject) => {
-    readyPromiseResolve = resolve;
-    readyPromiseReject = reject;
-  });
-}
-
-// end include: postamble_modularize.js
-
-
-
-  return moduleRtn;
-}
-);
-})();
-if (typeof exports === 'object' && typeof module === 'object') {
-  module.exports = OrusModule;
-  // This default export looks redundant, but it allows TS to import this
-  // commonjs style module.
-  module.exports.default = OrusModule;
-} else if (typeof define === 'function' && define['amd'])
-  define([], () => OrusModule);
