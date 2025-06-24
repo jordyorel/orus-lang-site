@@ -14,53 +14,75 @@ interface OrusModule {
 }
 
 let orusModule: OrusModule | null = null;
+let moduleLoadPromise: Promise<OrusModule> | null = null;
 
 export const loadOrusWasm = async (): Promise<OrusModule> => {
   if (orusModule) {
     return orusModule;
   }
 
-  try {
-    // Load the pre-compiled JavaScript module that comes with the WASM
-    const scriptElement = document.createElement('script');
-    scriptElement.src = '/orus-web.js';
-    
-    // Wait for the script to load
-    await new Promise((resolve, reject) => {
-      scriptElement.onload = resolve;
-      scriptElement.onerror = reject;
-      document.head.appendChild(scriptElement);
-    });
-
-    // The script should expose the Orus module on the global object
-    // Check common patterns for how WASM modules are exposed
-    const globalOrus = (window as any).Orus || (window as any).OrusModule || (window as any).Module;
-    
-    if (!globalOrus) {
-      throw new Error('Orus module not found on global object after loading script');
-    }
-
-    console.log('Loaded Orus module:', globalOrus);
-    console.log('Available methods:', Object.keys(globalOrus));
-
-    // Initialize the module if needed
-    if (typeof globalOrus.then === 'function') {
-      // It's a promise-based module
-      orusModule = await globalOrus;
-    } else if (typeof globalOrus === 'function') {
-      // It's a factory function
-      orusModule = await globalOrus();
-    } else {
-      // It's already the module
-      orusModule = globalOrus;
-    }
-
-    console.log('Initialized Orus module:', orusModule);
-    return orusModule;
-  } catch (error) {
-    console.error('Failed to load Orus WASM via JS file:', error);
-    throw new Error(`Failed to load Orus WASM: ${error}`);
+  if (moduleLoadPromise) {
+    return moduleLoadPromise;
   }
+
+  moduleLoadPromise = new Promise(async (resolve, reject) => {
+    try {
+      // Load the Emscripten-generated JavaScript file
+      const scriptElement = document.createElement('script');
+      scriptElement.src = '/orus-web.js';
+      
+      // Wait for the script to load
+      await new Promise((scriptResolve, scriptReject) => {
+        scriptElement.onload = scriptResolve;
+        scriptElement.onerror = scriptReject;
+        document.head.appendChild(scriptElement);
+      });
+
+      console.log('Orus script loaded, checking for module...');
+      
+      // The Emscripten-generated script should expose a factory function
+      const createModule = (window as any).Module || (window as any).createModule;
+      
+      if (!createModule) {
+        throw new Error('Orus module factory not found. Expected Module or createModule on window.');
+      }
+
+      console.log('Found module factory, initializing...');
+
+      // Initialize the Emscripten module
+      let moduleInstance;
+      if (typeof createModule === 'function') {
+        // It's a factory function - call it to create the module
+        moduleInstance = await createModule({
+          locateFile: (path: string) => {
+            // Ensure WASM file is loaded from the correct path
+            if (path.endsWith('.wasm')) {
+              return '/orus-web.wasm';
+            }
+            return path;
+          },
+          onRuntimeInitialized: () => {
+            console.log('Emscripten runtime initialized');
+          }
+        });
+      } else {
+        // It's already the module object
+        moduleInstance = createModule;
+      }
+
+      console.log('Module instance created:', moduleInstance);
+      console.log('Available functions:', Object.keys(moduleInstance).filter(key => typeof moduleInstance[key] === 'function'));
+
+      orusModule = moduleInstance;
+      resolve(moduleInstance);
+    } catch (error) {
+      console.error('Failed to load Orus WASM:', error);
+      moduleLoadPromise = null; // Reset so we can try again
+      reject(new Error(`Failed to load Orus WASM: ${error}`));
+    }
+  });
+
+  return moduleLoadPromise;
 };
 
 export const runOrusCode = async (code: string): Promise<string> => {
@@ -70,6 +92,7 @@ export const runOrusCode = async (code: string): Promise<string> => {
 
     // Initialize the VM if not ready
     if (module.isVMReady && !module.isVMReady()) {
+      console.log('Initializing VM...');
       if (module.initWebVM) module.initWebVM();
       if (module.registerWebBuiltins) module.registerWebBuiltins();
     }
@@ -77,6 +100,8 @@ export const runOrusCode = async (code: string): Promise<string> => {
     // Clear any previous errors
     if (module.clearLastError) module.clearLastError();
 
+    console.log('Executing code:', code);
+    
     // Run the source code
     const result = module.runSource(code);
     console.log('Execution result:', result);
