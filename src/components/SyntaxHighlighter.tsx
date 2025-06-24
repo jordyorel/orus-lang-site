@@ -19,25 +19,33 @@ const SyntaxHighlighter = ({ code, language = 'orus', className = '' }: SyntaxHi
       .replace(/'/g, '&#39;');
 
     return escapedCode
-      // Comments
-      .replace(/(\/\/.*)/g, '<span class="text-gray-500">$1</span>')
-      // Block comments
+      // Comments (do this first to avoid interfering with other patterns)
+      .replace(/(\/\/[^\r\n]*)/g, '<span class="text-gray-500">$1</span>')
+      // Block comments (multi-line)
       .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="text-gray-500">$1</span>')
-      // Strings
-      .replace(/("([^"\\]|\\.)*")/g, '<span class="text-green-400">$1</span>')
-      .replace(/('([^'\\]|\\.)*')/g, '<span class="text-green-400">$1</span>')
-      // Numbers
+      // Strings (handle both single and double quotes)
+      .replace(/(&quot;(?:[^&]|&(?!quot;))*&quot;)/g, '<span class="text-green-400">$1</span>')
+      .replace(/(&#39;(?:[^&]|&(?!#39;))*&#39;)/g, '<span class="text-green-400">$1</span>')
+      // Numbers (integers and floats)
       .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="text-orange-400">$1</span>')
       // Keywords
-      .replace(/\b(fn|let|mut|const|static|struct|impl|if|elif|else|match|for|while|in|return|use|pub|try|catch|as|break|continue|true|false|nil)\b/g, '<span class="text-purple-400">$1</span>')
+      .replace(/\b(fn|let|mut|const|static|struct|impl|if|elif|else|match|for|while|in|return|use|pub|try|catch|as|break|continue|true|false|nil|loop|enum)\b/g, '<span class="text-purple-400">$1</span>')
       // Types
-      .replace(/\b(i32|i64|u32|u64|f64|bool|string|void|self)\b/g, '<span class="text-blue-400">$1</span>')
+      .replace(/\b(i32|i64|u32|u64|f64|bool|string|void|self|Option|Result)\b/g, '<span class="text-blue-400">$1</span>')
       // Built-in functions
-      .replace(/\b(print|input|len|push|pop|reserve|type_of|timestamp|int|float)\b/g, '<span class="text-yellow-400">$1</span>')
-      // Function names
-      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="text-yellow-300">$1</span>')
-      // Struct names (capitalized)
-      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="text-cyan-400">$1</span>');
+      .replace(/\b(print|println|input|len|push|pop|reserve|type_of|timestamp|int|float|read_file|write_file|split|join|trim|upper|lower|contains|starts_with|ends_with|abs|sqrt|pow|sin|cos|tan|floor|ceil|round|random|random_int|sleep|sort|reverse|insert|remove)\b(?=\s*\()/g, '<span class="text-yellow-400">$1</span>')
+      // Function names (before parentheses, but not built-ins)
+      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, (match, name) => {
+        // Don't highlight if it's already been highlighted as a built-in
+        if (match.includes('class="text-yellow-400"')) {
+          return match;
+        }
+        return `<span class="text-yellow-300">${name}</span>(`;
+      })
+      // Struct/Type names (capitalized identifiers)
+      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="text-cyan-400">$1</span>')
+      // Self keyword
+      .replace(/\bself\b/g, '<span class="text-blue-400">self</span>');
   };
 
   const renderHighlightedCode = () => {
