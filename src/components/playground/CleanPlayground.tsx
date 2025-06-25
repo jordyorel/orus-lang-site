@@ -442,7 +442,7 @@ const CleanPlayground = () => {
               </div>
               
               {/* Editor Content */}
-              <div className="flex-1 overflow-hidden">
+              <div style={{ flex: 1, height: 0, minHeight: 0 }}>
                 <CodeEditor 
                   code={code} 
                   onChange={setCode} 
@@ -458,9 +458,9 @@ const CleanPlayground = () => {
           <ResizablePanel defaultSize={40} minSize={30}>
             <div className="h-full flex flex-col" style={{ backgroundColor: '#1e1e1e' }}>
               {/* Terminal Header - updated to match code editor style */}
-              <div className="h-9 flex items-center justify-between px-2" style={{ backgroundColor: '#1a1a1a', borderBottom: '1px solid #333' }}>
+              <div className="h-9 flex items-center justify-between px-2" style={{ backgroundColor: '#1e1e1e' }}>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium text-gray-300">TERMINAL</span>
+                  <span className="text-xs font-medium tracking-wider" style={{ color: '#a8a8a8', fontFamily: 'monospace' }}>TERMINAL</span>
                 </div>
                 <div className="relative">
                   <Button
