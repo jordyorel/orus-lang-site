@@ -6,7 +6,7 @@ const Roadmap = () => {
   const roadmapItems = [
     {
       version: 'Current',
-      title: 'Foundation Complete - Conservative v0.2.0',
+      title: 'Foundation Complete - Conservative v0.3.0',
       status: 'completed',
       date: 'Current',
       description: 'Strong language foundations with honest assessment of production readiness (~20-25% complete)',
