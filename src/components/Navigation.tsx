@@ -39,12 +39,12 @@ const Navigation = () => {
               <img 
                 src="/lovable-uploads/1325edf9-761a-404c-90e2-d2263793a65f.png" 
                 alt="Orus" 
-                className="w-10 h-10 object-contain"
+                className="w-12 h-12 object-contain"
                 onError={handleLogoError}
                 onLoad={handleLogoLoad}
               />
             ) : (
-              <div className="w-10 h-10 bg-gold-400 rounded flex items-center justify-center text-charcoal-950 font-bold text-sm">
+              <div className="w-12 h-12 bg-gold-400 rounded flex items-center justify-center text-charcoal-950 font-bold text-sm">
                 O
               </div>
             )}
