@@ -9,6 +9,9 @@ interface PlaygroundContentProps {
   onChange: (code: string) => void;
   output: string;
   isRunning: boolean;
+  executionTime?: number;
+  memoryUsage?: number;
+  errorCount?: number;
   onRun: () => void;
   onReset: () => void;
   onShare: () => void;
@@ -22,6 +25,9 @@ const PlaygroundContent = ({
   onChange,
   output,
   isRunning,
+  executionTime,
+  memoryUsage,
+  errorCount,
   onRun,
   onReset,
   onShare,
@@ -55,7 +61,14 @@ const PlaygroundContent = ({
 
           {/* Output Panel */}
           <ResizablePanel defaultSize={40} minSize={30}>
-            <OutputPanel output={output} isRunning={isRunning} onClear={onClearOutput} />
+            <OutputPanel 
+              output={output} 
+              isRunning={isRunning} 
+              onClear={onClearOutput}
+              executionTime={executionTime}
+              memoryUsage={memoryUsage}
+              errorCount={errorCount}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

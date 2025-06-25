@@ -22,20 +22,38 @@ const MonacoEditor = ({
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [matchingBrackets, setMatchingBrackets] = useState<{start: number, end: number} | null>(null);
 
+  // Clean the incoming value to ensure it's always plain text
+  const cleanValue = value
+    .replace(/<[^>]*>/g, '')  // Remove any HTML tags
+    .replace(/&lt;/g, '<')   // Decode HTML entities
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+
   useEffect(() => {
-    const lines = value.split('\n');
+    const lines = cleanValue.split('\n');
     const numbers = lines.map((_, index) => (index + 1).toString());
     setLineNumbers(numbers);
-  }, [value]);
+  }, [cleanValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(e.target.value);
+    // Ensure we always pass clean plain text, no HTML
+    const cleanValue = e.target.value
+      .replace(/<[^>]*>/g, '')  // Remove any HTML tags
+      .replace(/&lt;/g, '<')   // Decode HTML entities
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
+    onChange(cleanValue);
     updateCurrentLine(e.target);
   };
 
   const updateCurrentLine = (textarea: HTMLTextAreaElement) => {
     const cursorPos = textarea.selectionStart;
-    const textBeforeCursor = value.substring(0, cursorPos);
+    const textBeforeCursor = cleanValue.substring(0, cursorPos);
     const lineNumber = textBeforeCursor.split('\n').length;
     setCurrentLine(lineNumber);
     
@@ -48,8 +66,8 @@ const MonacoEditor = ({
     const openBrackets = ['(', '[', '{'];
     const closeBrackets = [')', ']', '}'];
     
-    const charAtCursor = value.charAt(cursorPos);
-    const charBeforeCursor = value.charAt(cursorPos - 1);
+    const charAtCursor = cleanValue.charAt(cursorPos);
+    const charBeforeCursor = cleanValue.charAt(cursorPos - 1);
     
     let searchChar = '';
     let searchPos = cursorPos;
@@ -93,8 +111,8 @@ const MonacoEditor = ({
     
     if (isOpenBracket) {
       // Search forward for closing bracket
-      for (let i = searchPos + 1; i < value.length; i++) {
-        const char = value.charAt(i);
+      for (let i = searchPos + 1; i < cleanValue.length; i++) {
+        const char = cleanValue.charAt(i);
         if (char === openChar) count++;
         else if (char === closeChar) {
           count--;
@@ -107,7 +125,7 @@ const MonacoEditor = ({
     } else {
       // Search backward for opening bracket
       for (let i = searchPos - 1; i >= 0; i--) {
-        const char = value.charAt(i);
+        const char = cleanValue.charAt(i);
         if (char === closeChar) count++;
         else if (char === openChar) {
           count--;
@@ -265,7 +283,7 @@ const MonacoEditor = ({
       const extraIndent = needsExtraIndent ? '    ' : '';
       
       // Check if next character is a closing bracket
-      const nextChar = value.charAt(start);
+      const nextChar = cleanValue.charAt(start);
       const isClosingBracket = /[}\])]/.test(nextChar);
       
       let newValue: string;
@@ -317,7 +335,7 @@ const MonacoEditor = ({
       }
 
       // Skip if next character is the same (for quotes)
-      const nextChar = value.charAt(start);
+      const nextChar = cleanValue.charAt(start);
       if ((e.key === '"' || e.key === "'") && nextChar === e.key) {
         e.preventDefault();
         // Move cursor past the existing quote
@@ -341,7 +359,7 @@ const MonacoEditor = ({
 
     // Handle closing brackets - skip if next character matches
     if (/[}\])]/.test(e.key)) {
-      const nextChar = value.charAt(start);
+      const nextChar = cleanValue.charAt(start);
       if (nextChar === e.key) {
         e.preventDefault();
         setTimeout(() => {
@@ -353,8 +371,8 @@ const MonacoEditor = ({
 
     // Handle Backspace for bracket pairs
     if (e.key === 'Backspace') {
-      const prevChar = value.charAt(start - 1);
-      const nextChar = value.charAt(start);
+      const prevChar = cleanValue.charAt(start - 1);
+      const nextChar = cleanValue.charAt(start);
       
       // Check if we're deleting an opening bracket with its matching closing bracket
       const isPair = (
@@ -390,25 +408,25 @@ const MonacoEditor = ({
 
     return code
       // Comments
-      .replace(/(\/\/.*)/g, '<span class="text-gray-500">$1</span>')
-      // Strings
-      .replace(/("([^"\\]|\\.)*")/g, '<span class="text-green-400">$1</span>')
-      .replace(/('([^'\\]|\\.)*')/g, '<span class="text-green-400">$1</span>')
+      .replace(/(\/\/.*)/g, '<span style="color: #6272a4">$1</span>')
+      // Strings - orange/yellow like in the screenshot
+      .replace(/("([^"\\]|\\.)*")/g, '<span style="color: #f1fa8c">$1</span>')
+      .replace(/('([^'\\]|\\.)*')/g, '<span style="color: #f1fa8c">$1</span>')
       // Numbers
-      .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="text-orange-400">$1</span>')
+      .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span style="color: #bd93f9">$1</span>')
       // Keywords
-      .replace(/\b(fn|let|mut|const|static|struct|impl|if|elif|else|match|for|while|in|return|use|pub|try|catch|as|break|continue|true|false|nil)\b/g, '<span class="text-purple-400">$1</span>')
+      .replace(/\b(fn|let|mut|const|static|struct|impl|if|elif|else|match|for|while|in|return|use|pub|try|catch|as|break|continue|true|false|nil)\b/g, '<span style="color: #ff79c6">$1</span>')
       // Types
-      .replace(/\b(i32|i64|u32|u64|f64|bool|string|void|self)\b/g, '<span class="text-blue-400">$1</span>')
-      // Built-in functions
-      .replace(/\b(print|input|len|push|pop|reserve|type_of|timestamp|int|float)\b/g, '<span class="text-yellow-400">$1</span>')
+      .replace(/\b(i32|i64|u32|u64|f64|bool|string|void|self)\b/g, '<span style="color: #8be9fd">$1</span>')
+      // Built-in functions like print - blue like in the screenshot
+      .replace(/\b(print|input|len|push|pop|reserve|type_of|timestamp|int|float)\b/g, '<span style="color: #8be9fd">$1</span>')
       // Function names
-      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="text-yellow-300">$1</span>')
+      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span style="color: #50fa7b">$1</span>')
       // Struct names (capitalized)
-      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="text-cyan-400">$1</span>');
+      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span style="color: #8be9fd">$1</span>');
   };
 
-  const processedValue = value
+  const processedValue = cleanValue
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -474,21 +492,23 @@ const MonacoEditor = ({
   };
 
   return (
-    <div className="flex flex-col bg-charcoal-900 text-charcoal-100 h-full border border-charcoal-700">
+    <div className="flex flex-col h-full" style={{ backgroundColor: '#1e1e1e', color: '#f8f8f2' }}>
       {/* Search Bar */}
       {isSearchOpen && (
-        <div className="flex items-center gap-2 p-2 bg-charcoal-800 border-b border-charcoal-700">
+        <div className="flex items-center gap-2 p-2" style={{ backgroundColor: '#1e1e1e', borderBottom: '1px solid #44475a' }}>
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search..."
-            className="flex-1 px-3 py-1 bg-charcoal-900 border border-charcoal-600 rounded text-sm focus:outline-none focus:border-gold-500"
+            className="flex-1 px-3 py-1 rounded text-sm focus:outline-none"
+            style={{ backgroundColor: '#1e1e1e', border: '1px solid #44475a', color: '#f8f8f2' }}
             autoFocus
           />
           <button
             onClick={() => {setIsSearchOpen(false); setSearchTerm('');}}
-            className="px-2 py-1 text-charcoal-400 hover:text-charcoal-200"
+            className="px-2 py-1"
+            style={{ color: '#6272a4' }}
           >
             ✕
           </button>
@@ -496,18 +516,17 @@ const MonacoEditor = ({
       )}
       
       {/* Editor with borders */}
-      <div className="flex bg-charcoal-950 text-charcoal-100 font-mono text-sm flex-1 min-h-0">
+      <div className="flex font-mono text-sm flex-1 min-h-0" style={{ backgroundColor: '#1e1e1e', color: '#f8f8f2' }}>
         {/* Line numbers - scrollable */}
-        <ScrollArea className="bg-charcoal-900 border-r border-charcoal-700 min-w-[3rem]">
-          <div className="px-3 py-4 text-charcoal-500 select-none">
+        <ScrollArea className="min-w-[3rem]" style={{ backgroundColor: '#1e1e1e', borderRight: '1px solid #44475a' }}>
+          <div className="px-3 py-4 select-none" style={{ color: '#6272a4' }}>
             {lineNumbers.map((num, index) => (
               <div 
                 key={index} 
-                className={`leading-6 text-right px-1 ${
-                  index + 1 === currentLine 
-                    ? 'bg-charcoal-700 text-charcoal-100 rounded' 
-                    : ''
-                }`}
+                className="leading-6 text-right px-1"
+                style={{
+                  color: '#6272a4'
+                }}
               >
                 {num}
               </div>
@@ -517,36 +536,25 @@ const MonacoEditor = ({
 
         {/* Editor area - scrollable */}
         <div className="flex-1 relative min-w-0">
-          {/* Current line highlighting */}
-          <div className="absolute inset-0 p-4 pointer-events-none z-5">
-            <div 
-              className="bg-charcoal-800 bg-opacity-50 w-full h-6 absolute"
-              style={{
-                top: `${16 + (currentLine - 1) * 24}px`,
-                left: '16px',
-                right: '16px'
-              }}
-            />
-          </div>
-          
           {/* Syntax highlighting background */}
           <pre
             ref={highlightRef}
-            className="absolute inset-0 p-4 m-0 text-sm font-mono leading-6 text-charcoal-200 overflow-auto pointer-events-none whitespace-pre-wrap break-words z-10"
+            className="absolute inset-0 p-4 m-0 text-sm font-mono leading-6 overflow-auto pointer-events-none whitespace-pre-wrap break-words z-10"
             style={{
+              color: '#f8f8f2',
               fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
             }}
             dangerouslySetInnerHTML={{
-              __html: highlightSearchTerms(processedValue) || '<span class="text-charcoal-500">Write your Orus code here...</span>'
+              __html: highlightSearchTerms(processedValue) || '<span style="color: #6272a4">Write your Orus code here...</span>'
             }}
           />
 
           {/* Input textarea */}
           <textarea
             ref={textareaRef}
-            value={value}
+            value={cleanValue}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             onKeyUp={handleCursorMove}

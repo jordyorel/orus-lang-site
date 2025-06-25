@@ -23,6 +23,9 @@ export interface OutputPanelProps {
   output: string;
   isRunning: boolean;
   onClear: () => void;
+  executionTime?: number;
+  memoryUsage?: number;
+  errorCount?: number;
 }
 
 export interface ExamplesSidebarProps {

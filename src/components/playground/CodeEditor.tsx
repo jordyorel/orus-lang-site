@@ -4,10 +4,8 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { CodeEditorProps } from '@/types/playground';
 
 const CodeEditor = ({ code, onChange }: CodeEditorProps) => {
-  console.log('CodeEditor rendering with code length:', code.length);
-
   return (
-    <div className="h-full bg-charcoal-900">
+    <div className="h-full bg-[#1e1e1e]">
       <ErrorBoundary>
         <MonacoEditor
           value={code}
