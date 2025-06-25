@@ -430,23 +430,23 @@ const MonacoEditor = ({
     if (!code) return '';
 
     return code
-      // Comments - subtle gray
-      .replace(/(\/\/.*)/g, '<span style="color: #6a9955">$1</span>')
-      // Strings - warm yellow/orange
-      .replace(/("([^"\\]|\\.)*")/g, '<span style="color: #ce9178">$1</span>')
-      .replace(/('([^'\\]|\\.)*')/g, '<span style="color: #ce9178">$1</span>')
-      // Numbers - light blue
-      .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span style="color: #b5cea8">$1</span>')
-      // Keywords - purple/magenta
-      .replace(/\b(fn|let|mut|const|static|struct|impl|if|elif|else|match|for|while|in|return|use|pub|try|catch|as|break|continue|true|false|nil)\b/g, '<span style="color: #c586c0">$1</span>')
-      // Types - cyan/blue
-      .replace(/\b(i32|i64|u32|u64|f64|bool|string|void|self)\b/g, '<span style="color: #4ec9b0">$1</span>')
-      // Built-in functions - light blue
-      .replace(/\b(print|input|len|push|pop|reserve|type_of|timestamp|int|float)\b/g, '<span style="color: #4fc1ff">$1</span>')
-      // Function names - light yellow
-      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span style="color: #dcdcaa">$1</span>')
-      // Struct names (capitalized) - cyan
-      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span style="color: #4ec9b0">$1</span>');
+      // Strings - orange/yellow like in the screenshot
+      .replace(/("([^"\\]|\\.)*")/g, '<span style="color: #f1fa8c">$1</span>')
+      .replace(/('([^'\\]|\\.)*')/g, '<span style="color: #f1fa8c">$1</span>')
+      // Numbers
+      .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span style="color: #bd93f9">$1</span>')
+      // Keywords
+      .replace(/\b(fn|let|mut|const|static|struct|impl|if|elif|else|match|for|while|in|return|use|pub|try|catch|as|break|continue|true|false|nil)\b/g, '<span style="color: #ff79c6">$1</span>')
+      // Types
+      .replace(/\b(i32|i64|u32|u64|f64|bool|string|void|self)\b/g, '<span style="color: #8be9fd">$1</span>')
+      // Built-in functions like print - blue like in the screenshot
+      .replace(/\b(print|input|len|push|pop|reserve|type_of|timestamp|int|float)\b/g, '<span style="color: #8be9fd">$1</span>')
+      // Function names
+      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span style="color: #50fa7b">$1</span>')
+      // Struct names (capitalized)
+      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span style="color: #8be9fd">$1</span>')
+      // Comments last to avoid interfering with other highlighting
+      .replace(/(\/\/.*)/g, '<span style="color: #6272a4">$1</span>');
   };
 
   const processedValue = cleanValue
