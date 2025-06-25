@@ -343,9 +343,9 @@ const Roadmap = () => {
             </div>
             <ul className="space-y-2 text-charcoal-300 text-sm">
               <li>• 90% of Python performance for similar tasks</li>
-              <li>• &lt;50MB baseline memory usage</li>
-              <li>• &lt;100ms cold start time</li>
-              <li>• &gt;95% standard library test coverage</li>
+              <li>• {'<'}50MB baseline memory usage</li>
+              <li>• {'<'}100ms cold start time</li>
+              <li>• {'>'}95% standard library test coverage</li>
               <li>• 209 comprehensive test files</li>
             </ul>
           </Card>
@@ -357,7 +357,7 @@ const Roadmap = () => {
             </div>
             <ul className="space-y-2 text-charcoal-300 text-sm">
               <li>• 100+ packages in registry</li>
-              <li>• &lt;30s average time to find documentation</li>
+              <li>• {'<'}30s average time to find documentation</li>
               <li>• 1000+ active developers</li>
               <li>• 10+ companies using in production</li>
               <li>• Comprehensive learning resources</li>
@@ -370,7 +370,7 @@ const Roadmap = () => {
               <h3 className="text-xl font-semibold text-white">Developer Experience</h3>
             </div>
             <ul className="space-y-2 text-charcoal-300 text-sm">
-              <li>• &lt;5 minutes from install to first program</li>
+              <li>• {'<'}5 minutes from install to first program</li>
               <li>• 90% of errors provide actionable suggestions</li>
               <li>• Full IDE support with LSP integration</li>
               <li>• Junior developers productive within 1 week</li>
