@@ -407,8 +407,6 @@ const MonacoEditor = ({
     if (!code) return '';
 
     return code
-      // Comments
-      .replace(/(\/\/.*)/g, '<span style="color: #6272a4">$1</span>')
       // Strings - orange/yellow like in the screenshot
       .replace(/("([^"\\]|\\.)*")/g, '<span style="color: #f1fa8c">$1</span>')
       .replace(/('([^'\\]|\\.)*')/g, '<span style="color: #f1fa8c">$1</span>')
@@ -423,7 +421,9 @@ const MonacoEditor = ({
       // Function names
       .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span style="color: #50fa7b">$1</span>')
       // Struct names (capitalized)
-      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span style="color: #8be9fd">$1</span>');
+      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span style="color: #8be9fd">$1</span>')
+      // Comments last to avoid interfering with other highlighting
+      .replace(/(\/\/.*)/g, '<span style="color: #6272a4">$1</span>');
   };
 
   const processedValue = cleanValue
