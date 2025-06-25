@@ -171,7 +171,7 @@ const Roadmap = () => {
           {/* Progress Overview */}
           <div className="flex justify-center space-x-8 mb-8">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-400">v0.2.0</div>
+              <div className="text-2xl font-bold text-green-400">v0.3.0</div>
               <div className="text-sm text-charcoal-400">Current Version</div>
             </div>
             <div className="text-center">
@@ -195,7 +195,7 @@ const Roadmap = () => {
               <div className="text-left">
                 <h3 className="text-lg font-semibold text-white mb-2">Conservative Versioning Philosophy</h3>
                 <p className="text-charcoal-300 text-sm">
-                  We've adopted honest versioning where v0.2.0 reflects ~20-25% production completeness. 
+                  We've adopted honest versioning where v0.3.0 reflects ~20-25% production completeness. 
                   Version 1.0.0 will represent true production readiness with a complete ecosystem, 
                   not just language features.
                 </p>
