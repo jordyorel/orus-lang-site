@@ -24,6 +24,11 @@ const Navigation = () => {
     setLogoError(true);
   };
 
+  const handleLogoLoad = () => {
+    console.log('Logo loaded successfully from /orus.png');
+    setLogoError(false);
+  };
+
   return (
     <nav className="bg-charcoal-950/95 backdrop-blur-sm border-b border-charcoal-800 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6">
@@ -36,7 +41,7 @@ const Navigation = () => {
                 alt="Orus" 
                 className="w-8 h-8 object-contain"
                 onError={handleLogoError}
-                onLoad={() => console.log('Logo loaded successfully')}
+                onLoad={handleLogoLoad}
               />
             ) : (
               <div className="w-8 h-8 bg-gold-400 rounded flex items-center justify-center text-charcoal-950 font-bold text-sm">
