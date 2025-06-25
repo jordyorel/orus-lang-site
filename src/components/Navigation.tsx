@@ -20,12 +20,12 @@ const Navigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   const handleLogoError = () => {
-    console.log('Logo failed to load from /orus.png');
+    console.log('Logo failed to load from /lovable-uploads/1325edf9-761a-404c-90e2-d2263793a65f.png');
     setLogoError(true);
   };
 
   const handleLogoLoad = () => {
-    console.log('Logo loaded successfully from /orus.png');
+    console.log('Logo loaded successfully from /lovable-uploads/1325edf9-761a-404c-90e2-d2263793a65f.png');
     setLogoError(false);
   };
 
@@ -37,7 +37,7 @@ const Navigation = () => {
           <Link to="/" className="flex items-center space-x-3">
             {!logoError ? (
               <img 
-                src="/orus.png" 
+                src="/lovable-uploads/1325edf9-761a-404c-90e2-d2263793a65f.png" 
                 alt="Orus" 
                 className="w-8 h-8 object-contain"
                 onError={handleLogoError}
