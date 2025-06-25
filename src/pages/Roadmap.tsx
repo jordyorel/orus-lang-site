@@ -238,7 +238,7 @@ const Roadmap = () => {
               </p>
             </div>
             <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 font-bold px-4 py-2">
-              v0.2.0 Current
+              v0.3.0 Current
             </Badge>
           </div>
         </Card>
