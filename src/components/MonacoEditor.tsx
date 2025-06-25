@@ -1,6 +1,4 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface MonacoEditorProps {
   value: string;
@@ -16,11 +14,17 @@ const MonacoEditor = ({
 }: MonacoEditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const highlightRef = useRef<HTMLPreElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [lineNumbers, setLineNumbers] = useState<string[]>([]);
-  const [currentLine, setCurrentLine] = useState<number>(1);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [matchingBrackets, setMatchingBrackets] = useState<{start: number, end: number} | null>(null);
+  const [currentLine, setCurrentLine] = useState<number>(1);
+  const [scrollInfo, setScrollInfo] = useState({
+    scrollTop: 0,
+    scrollHeight: 0,
+    clientHeight: 0
+  });
 
   // Clean the incoming value to ensure it's always plain text
   const cleanValue = value
@@ -35,6 +39,14 @@ const MonacoEditor = ({
     const lines = cleanValue.split('\n');
     const numbers = lines.map((_, index) => (index + 1).toString());
     setLineNumbers(numbers);
+    
+    // Initialize current line if textarea is available
+    if (textareaRef.current) {
+      const cursorPos = textareaRef.current.selectionStart;
+      const textUpToCursor = cleanValue.substring(0, cursorPos);
+      const lineNumber = textUpToCursor.split('\n').length;
+      setCurrentLine(lineNumber);
+    }
   }, [cleanValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -48,13 +60,15 @@ const MonacoEditor = ({
       .replace(/&#39;/g, "'");
     
     onChange(cleanValue);
-    updateCurrentLine(e.target);
+    updateBracketMatching(e.target);
   };
 
-  const updateCurrentLine = (textarea: HTMLTextAreaElement) => {
+  const updateBracketMatching = (textarea: HTMLTextAreaElement) => {
     const cursorPos = textarea.selectionStart;
-    const textBeforeCursor = cleanValue.substring(0, cursorPos);
-    const lineNumber = textBeforeCursor.split('\n').length;
+    
+    // Update current line number
+    const textUpToCursor = cleanValue.substring(0, cursorPos);
+    const lineNumber = textUpToCursor.split('\n').length;
     setCurrentLine(lineNumber);
     
     // Update bracket matching
@@ -147,7 +161,7 @@ const MonacoEditor = ({
   const handleCursorMove = (e: React.MouseEvent<HTMLTextAreaElement> | React.KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget;
     // Small delay to ensure cursor position is updated
-    setTimeout(() => updateCurrentLine(textarea), 0);
+    setTimeout(() => updateBracketMatching(textarea), 0);
   };
 
   const toggleComment = () => {
@@ -249,9 +263,9 @@ const MonacoEditor = ({
       }
     }
 
-    // Update current line for navigation keys
+    // Update bracket matching for navigation keys
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
-      setTimeout(() => updateCurrentLine(textarea), 0);
+      setTimeout(() => updateBracketMatching(textarea), 0);
     }
 
     // Tab handling
@@ -397,33 +411,42 @@ const MonacoEditor = ({
   };
 
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
+    const target = e.currentTarget;
+    
     if (highlightRef.current) {
-      highlightRef.current.scrollTop = e.currentTarget.scrollTop;
-      highlightRef.current.scrollLeft = e.currentTarget.scrollLeft;
+      highlightRef.current.scrollTop = target.scrollTop;
+      highlightRef.current.scrollLeft = target.scrollLeft;
     }
+    
+    // Update scroll info for custom scrollbar
+    setScrollInfo({
+      scrollTop: target.scrollTop,
+      scrollHeight: target.scrollHeight,
+      clientHeight: target.clientHeight
+    });
   };
 
   const highlightSyntax = (code: string): string => {
     if (!code) return '';
 
     return code
-      // Comments
-      .replace(/(\/\/.*)/g, '<span style="color: #6272a4">$1</span>')
-      // Strings - orange/yellow like in the screenshot
-      .replace(/("([^"\\]|\\.)*")/g, '<span style="color: #f1fa8c">$1</span>')
-      .replace(/('([^'\\]|\\.)*')/g, '<span style="color: #f1fa8c">$1</span>')
-      // Numbers
-      .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span style="color: #bd93f9">$1</span>')
-      // Keywords
-      .replace(/\b(fn|let|mut|const|static|struct|impl|if|elif|else|match|for|while|in|return|use|pub|try|catch|as|break|continue|true|false|nil)\b/g, '<span style="color: #ff79c6">$1</span>')
-      // Types
-      .replace(/\b(i32|i64|u32|u64|f64|bool|string|void|self)\b/g, '<span style="color: #8be9fd">$1</span>')
-      // Built-in functions like print - blue like in the screenshot
-      .replace(/\b(print|input|len|push|pop|reserve|type_of|timestamp|int|float)\b/g, '<span style="color: #8be9fd">$1</span>')
-      // Function names
-      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span style="color: #50fa7b">$1</span>')
-      // Struct names (capitalized)
-      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span style="color: #8be9fd">$1</span>');
+      // Comments - subtle gray
+      .replace(/(\/\/.*)/g, '<span style="color: #6a9955">$1</span>')
+      // Strings - warm yellow/orange
+      .replace(/("([^"\\]|\\.)*")/g, '<span style="color: #ce9178">$1</span>')
+      .replace(/('([^'\\]|\\.)*')/g, '<span style="color: #ce9178">$1</span>')
+      // Numbers - light blue
+      .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span style="color: #b5cea8">$1</span>')
+      // Keywords - purple/magenta
+      .replace(/\b(fn|let|mut|const|static|struct|impl|if|elif|else|match|for|while|in|return|use|pub|try|catch|as|break|continue|true|false|nil)\b/g, '<span style="color: #c586c0">$1</span>')
+      // Types - cyan/blue
+      .replace(/\b(i32|i64|u32|u64|f64|bool|string|void|self)\b/g, '<span style="color: #4ec9b0">$1</span>')
+      // Built-in functions - light blue
+      .replace(/\b(print|input|len|push|pop|reserve|type_of|timestamp|int|float)\b/g, '<span style="color: #4fc1ff">$1</span>')
+      // Function names - light yellow
+      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span style="color: #dcdcaa">$1</span>')
+      // Struct names (capitalized) - cyan
+      .replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span style="color: #4ec9b0">$1</span>');
   };
 
   const processedValue = cleanValue
@@ -492,62 +515,123 @@ const MonacoEditor = ({
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ backgroundColor: '#1e1e1e', color: '#f8f8f2' }}>
+    <div 
+      ref={containerRef}
+      style={{ 
+        height: '100%',
+        backgroundColor: '#1e1e1e',
+        fontFamily: '"SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
       {/* Search Bar */}
       {isSearchOpen && (
-        <div className="flex items-center gap-2 p-2" style={{ backgroundColor: '#1e1e1e', borderBottom: '1px solid #44475a' }}>
+        <div 
+          className="absolute top-0 left-0 right-0 z-50 flex items-center gap-2 p-2" 
+          style={{ backgroundColor: '#1e1e1e', borderBottom: '1px solid #333' }}
+        >
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search..."
             className="flex-1 px-3 py-1 rounded text-sm focus:outline-none"
-            style={{ backgroundColor: '#1e1e1e', border: '1px solid #44475a', color: '#f8f8f2' }}
+            style={{ backgroundColor: '#2a2a2a', border: '1px solid #444', color: '#f8f8f2' }}
             autoFocus
           />
           <button
             onClick={() => {setIsSearchOpen(false); setSearchTerm('');}}
-            className="px-2 py-1"
-            style={{ color: '#6272a4' }}
+            className="px-2 py-1 text-gray-400 hover:text-white"
           >
             ✕
           </button>
         </div>
       )}
       
-      {/* Editor with borders */}
-      <div className="flex font-mono text-sm flex-1 min-h-0" style={{ backgroundColor: '#1e1e1e', color: '#f8f8f2' }}>
-        {/* Line numbers - scrollable */}
-        <ScrollArea className="min-w-[3rem]" style={{ backgroundColor: '#1e1e1e', borderRight: '1px solid #44475a' }}>
-          <div className="px-3 py-4 select-none" style={{ color: '#6272a4' }}>
+      {/* Editor container */}
+      <div 
+        style={{ 
+          paddingTop: isSearchOpen ? '40px' : '0',
+          display: 'flex',
+          height: '100%',
+          width: '100%',
+          position: 'relative'
+        }}
+      >
+        {/* Line numbers */}
+        <div 
+          style={{ 
+            width: '60px',
+            backgroundColor: '#1e1e1e',
+            borderRight: '1px solid #2d2d30',
+            userSelect: 'none',
+            flexShrink: 0,
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <div 
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '12px',
+              transform: `translateY(-${scrollInfo.scrollTop}px)`,
+              fontFamily: '"SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
+              fontSize: '14px',
+              lineHeight: '20px',
+              textAlign: 'right'
+            }}
+          >
             {lineNumbers.map((num, index) => (
               <div 
-                key={index} 
-                className="leading-6 text-right px-1"
+                key={index}
                 style={{
-                  color: '#6272a4'
+                  height: '20px',
+                  lineHeight: '20px',
+                  color: (index + 1) === currentLine ? '#cccccc' : '#6e7681',
+                  fontWeight: '400'
                 }}
               >
                 {num}
               </div>
             ))}
           </div>
-        </ScrollArea>
+        </div>
 
-        {/* Editor area - scrollable */}
-        <div className="flex-1 relative min-w-0">
-          {/* Syntax highlighting background */}
+        {/* Editor content area */}
+        <div 
+          style={{ 
+            backgroundColor: '#1e1e1e',
+            flex: 1,
+            position: 'relative',
+            minWidth: 0
+          }}
+        >
+          {/* Syntax highlighting layer */}
           <pre
             ref={highlightRef}
-            className="absolute inset-0 p-4 m-0 text-sm font-mono leading-6 overflow-auto pointer-events-none whitespace-pre-wrap break-words z-10"
             style={{
-              color: '#f8f8f2',
-              fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: 'auto',
+              minHeight: '100%',
+              margin: 0,
+              padding: '16px',
+              fontFamily: '"SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
+              fontSize: '14px',
+              lineHeight: '20px',
+              color: '#d4d4d4',
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+              overflow: 'hidden',
+              pointerEvents: 'none',
+              zIndex: 1
             }}
             dangerouslySetInnerHTML={{
-              __html: highlightSearchTerms(processedValue) || '<span style="color: #6272a4">Write your Orus code here...</span>'
+              __html: highlightSearchTerms(processedValue) || '<span style="color: #6a9955">// Write your Orus code here...</span>'
             }}
           />
 
@@ -560,21 +644,62 @@ const MonacoEditor = ({
             onKeyUp={handleCursorMove}
             onClick={handleCursorMove}
             onScroll={handleScroll}
-            className="w-full h-full p-4 bg-transparent text-transparent resize-none outline-none border-none whitespace-pre-wrap break-words relative z-20"
             style={{
-              fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Menlo, "Ubuntu Mono", monospace',
-              caretColor: '#ffffff',
+              width: '100%',
+              height: '100%',
+              margin: 0,
+              padding: '16px',
+              fontFamily: '"SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
               fontSize: '14px',
-              lineHeight: '24px'
+              lineHeight: '20px',
+              backgroundColor: 'transparent',
+              color: 'transparent',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+              caretColor: '#ffffff',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              zIndex: 2,
+              overflow: 'auto'
             }}
             spellCheck={false}
-            placeholder=""
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
           />
+
         </div>
       </div>
+      
+      {/* Hide scrollbars and fix selection */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          textarea {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+          }
+          textarea::-webkit-scrollbar {
+            display: none !important;
+          }
+          textarea::selection {
+            background: rgba(173, 214, 255, 0.3) !important;
+          }
+          textarea::-moz-selection {
+            background: rgba(173, 214, 255, 0.3) !important;
+          }
+          pre {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+          }
+          pre::-webkit-scrollbar {
+            display: none !important;
+          }
+        `
+      }} />
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { CodeEditorProps } from '@/types/playground';
 
 const CodeEditor = ({ code, onChange }: CodeEditorProps) => {
   return (
-    <div className="h-full bg-[#1e1e1e]">
+    <div style={{ height: '100%', backgroundColor: '#1e1e1e', overflow: 'hidden' }}>
       <ErrorBoundary>
         <MonacoEditor
           value={code}
