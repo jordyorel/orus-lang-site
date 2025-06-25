@@ -22,9 +22,11 @@ const MonacoEditor = ({
   const [currentLine, setCurrentLine] = useState<number>(1);
   const [scrollInfo, setScrollInfo] = useState({
     scrollTop: 0,
+    scrollLeft: 0,
     scrollHeight: 0,
     clientHeight: 0
   });
+  const [selectionLines, setSelectionLines] = useState<{start: number, end: number} | null>(null);
 
   // Clean the incoming value to ensure it's always plain text
   const cleanValue = value
@@ -73,6 +75,18 @@ const MonacoEditor = ({
     
     // Update bracket matching
     findMatchingBracket(cursorPos);
+  };
+
+  const updateSelection = (textarea: HTMLTextAreaElement) => {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    if (start === end) {
+      setSelectionLines(null);
+    } else {
+      const startLine = cleanValue.substring(0, start).split('\n').length - 1;
+      const endLine = cleanValue.substring(0, end).split('\n').length - 1;
+      setSelectionLines({ start: startLine, end: endLine });
+    }
   };
 
   const findMatchingBracket = (cursorPos: number) => {
@@ -161,7 +175,15 @@ const MonacoEditor = ({
   const handleCursorMove = (e: React.MouseEvent<HTMLTextAreaElement> | React.KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget;
     // Small delay to ensure cursor position is updated
-    setTimeout(() => updateBracketMatching(textarea), 0);
+    setTimeout(() => {
+      updateBracketMatching(textarea);
+      updateSelection(textarea);
+    }, 0);
+  };
+
+  const handleSelectionChange = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    const textarea = e.currentTarget;
+    updateSelection(textarea);
   };
 
   const toggleComment = () => {
@@ -412,15 +434,16 @@ const MonacoEditor = ({
 
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     const target = e.currentTarget;
-    
+
     if (highlightRef.current) {
       highlightRef.current.scrollTop = target.scrollTop;
       highlightRef.current.scrollLeft = target.scrollLeft;
     }
-    
+
     // Update scroll info for custom scrollbar
     setScrollInfo({
       scrollTop: target.scrollTop,
+      scrollLeft: target.scrollLeft,
       scrollHeight: target.scrollHeight,
       clientHeight: target.clientHeight
     });
@@ -517,7 +540,7 @@ const MonacoEditor = ({
   return (
     <div 
       ref={containerRef}
-      style={{ 
+      style={{
         height: '100%',
         backgroundColor: '#1e1e1e',
         fontFamily: '"SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
@@ -635,6 +658,31 @@ const MonacoEditor = ({
             }}
           />
 
+          {/* Selection highlight overlay */}
+          {selectionLines && (
+            <>
+              {Array.from({ length: selectionLines.end - selectionLines.start + 1 }).map((_, i) => {
+                const line = selectionLines.start + i;
+                return (
+                  <div
+                    key={line}
+                    style={{
+                      position: 'absolute',
+                      top: 16 + line * 20 - scrollInfo.scrollTop,
+                      left: 0,
+                      right: 0,
+                      height: 20,
+                      background: 'rgba(173, 214, 255, 0.3)',
+                      transform: `translateX(-${scrollInfo.scrollLeft}px)`,
+                      pointerEvents: 'none',
+                      zIndex: 0
+                    }}
+                  />
+                );
+              })}
+            </>
+          )}
+
           {/* Input textarea */}
           <textarea
             ref={textareaRef}
@@ -644,6 +692,7 @@ const MonacoEditor = ({
             onKeyUp={handleCursorMove}
             onClick={handleCursorMove}
             onScroll={handleScroll}
+            onSelect={handleSelectionChange}
             style={{
               width: '100%',
               height: '100%',
@@ -675,31 +724,6 @@ const MonacoEditor = ({
         </div>
       </div>
       
-      {/* Hide scrollbars and fix selection */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          textarea {
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-          }
-          textarea::-webkit-scrollbar {
-            display: none !important;
-          }
-          textarea::selection {
-            background: rgba(173, 214, 255, 0.3) !important;
-          }
-          textarea::-moz-selection {
-            background: rgba(173, 214, 255, 0.3) !important;
-          }
-          pre {
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-          }
-          pre::-webkit-scrollbar {
-            display: none !important;
-          }
-        `
-      }} />
     </div>
   );
 };
