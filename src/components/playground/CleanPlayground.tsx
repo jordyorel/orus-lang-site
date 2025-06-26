@@ -1,912 +1,784 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Play, 
-  Square, 
-  Settings, 
-  Share2, 
-  Download,
-  ChevronDown,
-  FileText,
-  Plus,
-  MoreHorizontal,
-  Star,
-  User,
-  Code,
-  X,
-  Sun,
-  Moon,
-  RectangleHorizontal,
-  RectangleVertical,
-  Copy,
-  Clipboard,
-  Trash2,
-  FilePlus
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import CodeEditor from './CodeEditor';
-import { usePlayground } from '@/hooks/usePlayground';
+// CleanPlayground.tsx: Layout, tabs, toolbar, file management
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { CodeEditor } from './CodeEditor';
+import { usePlayground } from './usePlayground';
 
-const CleanPlayground = () => {
-  const {
-    code,
-    setCode,
-    output,
-    isRunning,
-    executionTime,
-    memoryUsage,
-    errorCount,
-    runCode,
-    resetCode,
-    shareCode,
-    exportCode,
-    showHelp,
-    clearOutput,
-    handleExampleSelect
-  } = usePlayground();
+interface ResizableLayoutProps {
+  leftPanel: React.ReactNode;
+  rightPanel: React.ReactNode;
+  initialRightWidth?: number;
+  minRightWidth?: number;
+  maxRightWidth?: number;
+}
 
-  const [currentFile, setCurrentFile] = useState('main.orus');
-  const [files, setFiles] = useState<{[key: string]: string}>({
-    'main.orus': code // Initialize with the current code
-  });
+const ResizableLayout: React.FC<ResizableLayoutProps> = ({
+  leftPanel,
+  rightPanel,
+  initialRightWidth = 400,
+  minRightWidth = 250,
+  maxRightWidth = 800
+}) => {
+  const [rightWidth, setRightWidth] = useState(initialRightWidth);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const [isPressed, setIsPressed] = useState(false);
-  const [showOutput, setShowOutput] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
-  const [isSettingsClosing, setIsSettingsClosing] = useState(false);
-  const [isSettingsAnimating, setIsSettingsAnimating] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [layout, setLayout] = useState<'horizontal' | 'vertical'>('horizontal');
-  const [fontFamily, setFontFamily] = useState('Fira Code');
-  const [fontSize, setFontSize] = useState(15);
-  const [showTerminalMenu, setShowTerminalMenu] = useState(false);
-  const [showNewFileDialog, setShowNewFileDialog] = useState(false);
-  const [newFileName, setNewFileName] = useState('');
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [fileToDelete, setFileToDelete] = useState<string>('');
-
-  // Initialize main.orus with the code from the playground hook
-  useEffect(() => {
-    setFiles(prevFiles => ({
-      ...prevFiles,
-      'main.orus': code
-    }));
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    setIsDragging(true);
+    e.preventDefault();
   }, []);
 
-  // Update files state when code changes
-  useEffect(() => {
-    if (currentFile) {
-      setFiles(prev => ({
-        ...prev,
-        [currentFile]: code
-      }));
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging || !containerRef.current) return;
+
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const newWidth = containerRect.right - e.clientX;
+    const clampedWidth = Math.max(minRightWidth, Math.min(maxRightWidth, newWidth));
+    setRightWidth(clampedWidth);
+  }, [isDragging, minRightWidth, maxRightWidth]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      };
     }
-  }, [code, currentFile]);
-
-  // Show output when new content arrives
-  useEffect(() => {
-    if (output && !isRunning) {
-      // Slight delay for smooth appearance
-      setTimeout(() => {
-        setShowOutput(true);
-      }, 100);
-    }
-  }, [output, isRunning]);
-
-  const handleRunCode = () => {
-    if (isRunning) {
-      // Stop the program - this should stop execution and set isRunning to false
-      clearOutput();
-    } else {
-      // Make sure we're using the most current version of code for the current file
-      const codeToRun = files[currentFile] || code;
-      
-      // Animate output disappearing
-      setShowOutput(false);
-      
-      // Clear terminal before running new program
-      clearOutput();
-      
-      // Animate button press
-      setIsPressed(true);
-      setTimeout(() => setIsPressed(false), 150);
-      
-      // Wait for fade out animation, then run code
-      setTimeout(() => {
-        // Update code in the playground hook if needed
-        if (code !== codeToRun) {
-          setCode(codeToRun);
-          // Give a small delay for the code to update
-          setTimeout(() => {
-            runCode();
-          }, 50);
-        } else {
-          runCode();
-        }
-      }, 200);
-    }
-  };
-
-  const formatOutput = (text: string) => {
-    if (!text) return '';
-    
-    // Simple ANSI color code handling for terminal-like output
-    const ansiColors: Record<string, string> = {
-      '[31m': '<span style="color: #ff5555;">',      // red
-      '[32m': '<span style="color: #50fa7b;">',      // green  
-      '[33m': '<span style="color: #f1fa8c;">',      // yellow
-      '[34m': '<span style="color: #8be9fd;">',      // blue
-      '[35m': '<span style="color: #bd93f9;">',      // purple
-      '[36m': '<span style="color: #8be9fd;">',      // cyan
-      '[0m': '</span>',                              // reset
-    };
-    
-    let result = text;
-    Object.entries(ansiColors).forEach(([ansiCode, replacement]) => {
-      result = result.replace(new RegExp(ansiCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), replacement);
-    });
-    
-    return result;
-  };
-
-  const handleSettingsToggle = () => {
-    if (showSettings) {
-      // Start closing animation
-      setIsSettingsClosing(true);
-      setTimeout(() => {
-        setShowSettings(false);
-        setIsSettingsClosing(false);
-        setIsSettingsAnimating(false);
-      }, 350);
-    } else {
-      // Open - start off-screen, then animate in
-      setShowSettings(true);
-      setIsSettingsAnimating(true);
-      // Let the panel render off-screen first, then animate in
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          setIsSettingsAnimating(false);
-        }, 50);
-      });
-    }
-  };
-
-  const handleSettingsClose = () => {
-    setIsSettingsClosing(true);
-    setTimeout(() => {
-      setShowSettings(false);
-      setIsSettingsClosing(false);
-      setIsSettingsAnimating(false);
-    }, 350);
-  };
-
-  const handleCopyOutput = () => {
-    if (output) {
-      navigator.clipboard.writeText(output);
-    }
-    setShowTerminalMenu(false);
-  };
-
-  const handleCopySelected = () => {
-    const selection = window.getSelection()?.toString();
-    if (selection) {
-      navigator.clipboard.writeText(selection);
-    }
-    setShowTerminalMenu(false);
-  };
-
-  const handlePaste = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      // Handle paste logic here if needed
-      console.log('Pasted:', text);
-    } catch (err) {
-      console.error('Failed to read clipboard contents: ', err);
-    }
-    setShowTerminalMenu(false);
-  };
-
-  const handleClearTerminal = () => {
-    clearOutput();
-    setShowTerminalMenu(false);
-  };
-
-  const handleFileSwitch = (fileName: string) => {
-    // Save current content before switching
-    setFiles(prev => ({
-      ...prev,
-      [currentFile]: code
-    }));
-    
-    // Switch to selected file
-    setCurrentFile(fileName);
-    
-    // Update editor content
-    setCode(files[fileName] || '');
-  };
-
-  const handleNewFile = () => {
-    setNewFileName('');
-    setShowNewFileDialog(true);
-  };
-
-  const handleCreateNewFile = () => {
-    if (newFileName.trim()) {
-      // Add .orus extension if not already present
-      let fileName = newFileName.trim();
-      if (!fileName.endsWith('.orus')) {
-        fileName += '.orus';
-      }
-      
-      // Check if file already exists
-      if (files[fileName]) {
-        // If it exists, just switch to it
-        handleFileSwitch(fileName);
-      } else {
-        // Save current file content before creating a new one
-        setFiles(prev => ({
-          ...prev,
-          [currentFile]: code, // Save current file content
-          [fileName]: '// New Orus file\n\n' // Add new file with template content
-        }));
-        
-        // Switch to new file
-        setCurrentFile(fileName);
-        
-        // Update editor with the new file's content
-        setCode('// New Orus file\n\n');
-      }
-      
-      // Close dialog
-      setShowNewFileDialog(false);
-      setNewFileName('');
-    }
-  };
-
-  const handleDeleteFile = (fileName: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent file switching when clicking delete
-    setFileToDelete(fileName);
-    setShowDeleteDialog(true);
-  };
-
-  const confirmDeleteFile = () => {
-    if (fileToDelete && Object.keys(files).length > 1) {
-      // Remove file from files
-      const newFiles = { ...files };
-      delete newFiles[fileToDelete];
-      setFiles(newFiles);
-      
-      // If deleting current file, switch to first available file
-      if (fileToDelete === currentFile) {
-        const remainingFiles = Object.keys(newFiles);
-        if (remainingFiles.length > 0) {
-          setCurrentFile(remainingFiles[0]);
-          setCode(newFiles[remainingFiles[0]]);
-        }
-      }
-    }
-    
-    setShowDeleteDialog(false);
-    setFileToDelete('');
-  };
-
-  const cancelDeleteFile = () => {
-    setShowDeleteDialog(false);
-    setFileToDelete('');
-  };
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   return (
-    <div className="h-screen text-white flex flex-col" style={{ backgroundColor: '#1e1e1e' }}>
-      {/* Header - simplified to match the minimalist style of the example */}
-      <header className="h-12 flex items-center justify-between px-4" style={{ backgroundColor: '#1a1a1a', borderBottom: '1px solid #333' }}>
-        {/* Left side - Logo and name as home button */}
-        <button 
-          onClick={() => window.location.href = '/'}
-          className="flex items-center space-x-3 text-white font-medium hover:opacity-80 transition-opacity duration-200"
-          title="Go to Home"
-        >
-          <div className="w-7 h-7 bg-blue-600 rounded flex items-center justify-center">
-            <Code className="w-4 h-4 text-white" />
-          </div>
-          <span>Orus</span>
-        </button>
-
-        {/* Center buttons - core functionality only */}
-        <div className="flex items-center space-x-2">
-          <Button
-            onClick={handleRunCode}
-            className={`text-white px-6 py-2 h-8 font-medium transition-all duration-150 transform ${
-              isRunning 
-                ? 'bg-red-600 hover:bg-red-700 active:bg-red-800' 
-                : 'bg-green-600 hover:bg-green-700 active:bg-green-800'
-            } ${
-              isPressed ? 'scale-95 shadow-inner' : 'scale-100 shadow-md hover:shadow-lg'
-            }`}
-            style={{
-              boxShadow: isPressed 
-                ? 'inset 0 2px 4px rgba(0,0,0,0.3)' 
-                : '0 2px 4px rgba(0,0,0,0.2)'
-            }}
-          >
-            {isRunning ? (
-              <>
-                <Square className="w-4 h-4 mr-2" />
-                Stop
-              </>
-            ) : (
-              <>
-                <Play className="w-4 h-4 mr-2" />
-                Run
-              </>
-            )}
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSettingsToggle}
-            className="h-8 px-3"
-            style={{ borderColor: '#44475a', color: '#f8f8f2' }}
-          >
-            <Settings className="w-4 h-4" />
-          </Button>
-        </div>
-
-        {/* Right side - empty for minimalism */}
-        <div></div>
-      </header>
-
-      {/* Main Content */}
-      <div className="flex-1 min-h-0">
-        <ResizablePanelGroup direction={layout === 'horizontal' ? 'horizontal' : 'vertical'} className="h-full">
-          {/* Code Editor */}
-          <ResizablePanel defaultSize={60} minSize={30}>
-            <div className="h-full flex flex-col overflow-hidden" style={{ backgroundColor: '#1e1e1e' }}>
-              {/* Editor Header - updated with tabs design */}
-              <div className="flex flex-col" style={{ backgroundColor: '#1a1a1a' }}>
-                {/* File Tabs */}
-                <div className="flex items-center h-9 overflow-x-auto hide-scrollbar" style={{ borderBottom: '1px solid #333' }}>
-                  {/* File Tabs */}
-                  <div className="flex items-center">
-                    {Object.keys(files).map((fileName) => (
-                      <div 
-                        key={fileName}
-                        onClick={() => handleFileSwitch(fileName)}
-                        className={`group flex items-center px-3 h-9 cursor-pointer transition-all duration-200 relative ${
-                          fileName === currentFile 
-                          ? 'bg-[#1e1e1e] text-white' 
-                          : 'bg-[#1a1a1a] text-gray-400 hover:text-gray-200'
-                        }`}
-                      >
-                        <img 
-                          src="/orus.png" 
-                          alt="Orus icon" 
-                          className="w-4 h-4 mr-2" 
-                        />
-                        <span className="text-sm whitespace-nowrap pr-1">{fileName}</span>
-                        
-                        {/* X Button - only show if more than one file */}
-                        {Object.keys(files).length > 1 && (
-                          <button
-                            onClick={(e) => handleDeleteFile(fileName, e)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-1 p-0.5 rounded text-gray-400 hover:text-red-400 hover:bg-red-500/10"
-                            title="Delete file"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Right side spacer */}
-                  <div className="flex-1"></div>
-                  
-                  {/* Add New Button - moved back to right side */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleNewFile}
-                    className="h-9 px-3 text-gray-400 hover:text-gray-200 rounded-none"
-                    title="New File"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </Button>
-                  
-                  {/* Run Button */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleRunCode}
-                    className="h-9 px-3 text-gray-400 hover:text-gray-200 rounded-none"
-                    title="Run Code"
-                  >
-                    <Play className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-                
-                {/* Style for hiding scrollbar but allowing scroll */}
-                <style dangerouslySetInnerHTML={{
-                  __html: `
-                    .hide-scrollbar::-webkit-scrollbar {
-                      height: 0;
-                      width: 0;
-                      display: none;
-                    }
-                    .hide-scrollbar {
-                      -ms-overflow-style: none;
-                      scrollbar-width: none;
-                    }
-                  `
-                }} />
-              </div>
-              
-              {/* Editor Content */}
-              <div style={{ flex: 1, height: 0, minHeight: 0 }}>
-                <CodeEditor 
-                  code={code} 
-                  onChange={setCode} 
-                />
-              </div>
-            </div>
-          </ResizablePanel>
-
-          {/* Resizable Handle - Thin separator line */}
-          <ResizableHandle className={layout === 'horizontal' ? 'w-px' : 'h-px'} style={{ backgroundColor: '#333' }} />
-
-          {/* Terminal/Output Panel */}
-          <ResizablePanel defaultSize={40} minSize={30}>
-            <div className="h-full flex flex-col" style={{ backgroundColor: '#1e1e1e' }}>
-              {/* Terminal Header - updated to match code editor style */}
-              <div className="h-9 flex items-center justify-between px-2" style={{ backgroundColor: '#1e1e1e' }}>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs font-medium tracking-wider" style={{ color: '#a8a8a8', fontFamily: 'monospace' }}>TERMINAL</span>
-                </div>
-                <div className="relative">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowTerminalMenu(!showTerminalMenu)}
-                    className="h-7 w-7 p-0 text-gray-400 hover:text-gray-300"
-                  >
-                    <MoreHorizontal className="w-3.5 h-3.5" />
-                  </Button>
-                  
-                  {/* Terminal Context Menu */}
-                  {showTerminalMenu && (
-                    <>
-                      {/* Backdrop to close menu */}
-                      <div 
-                        className="fixed inset-0 z-10"
-                        onClick={() => setShowTerminalMenu(false)}
-                      />
-                      
-                      {/* Menu */}
-                      <div 
-                        className="absolute right-0 top-full mt-1 w-48 rounded-lg shadow-lg z-20"
-                        style={{ backgroundColor: '#2a2a2a', border: '1px solid #404040' }}
-                      >
-                        <div className="py-1">
-                          <button
-                            onClick={handleCopyOutput}
-                            className="w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center space-x-2"
-                            disabled={!output}
-                          >
-                            <Copy className="w-4 h-4" />
-                            <span>Copy Output</span>
-                          </button>
-                          
-                          <button
-                            onClick={handleCopySelected}
-                            className="w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center space-x-2"
-                          >
-                            <Copy className="w-4 h-4" />
-                            <span>Copy Selected</span>
-                          </button>
-                          
-                          <button
-                            onClick={handlePaste}
-                            className="w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center space-x-2"
-                          >
-                            <Clipboard className="w-4 h-4" />
-                            <span>Paste</span>
-                          </button>
-                          
-                          <button
-                            onClick={handleClearTerminal}
-                            className="w-full px-3 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center space-x-2"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span>Clear Terminal</span>
-                          </button>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Terminal Content */}
-              <div className="flex-1 p-4 overflow-y-auto font-mono text-sm">
-                {isRunning ? (
-                  <div 
-                    className="animate-fade-in"
-                    style={{ color: '#f1fa8c' }}
-                  >
-                    Running your code...
-                  </div>
-                ) : output ? (
-                  <div 
-                    className={`transition-all duration-300 ${
-                      showOutput ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-2'
-                    }`}
-                  >
-                    {/* Output content - WHITE */}
-                    <div 
-                      className="whitespace-pre-wrap"
-                      style={{ color: '#ffffff' }}
-                    >
-                      {/* Comprehensive text cleaning for output */}
-                      {typeof output === 'string' 
-                        ? output
-                            .replace(/<[^>]*>/g, '') // Remove HTML tags
-                            .replace(/&lt;/g, '<')    // Decode HTML entities
-                            .replace(/&gt;/g, '>')
-                            .replace(/&amp;/g, '&')
-                            .replace(/&quot;/g, '"')
-                            .replace(/&#39;/g, "'")
-                            .replace(/#[0-9a-fA-F]{6}/g, '') // Remove any hex color codes
-                            .replace(/color:\s*[^;]+;?/gi, '') // Remove any CSS color properties
-                        : output
-                      }
-                    </div>
-                    {/* Cursor after output */}
-                    <div className="flex items-center">
-                      <span style={{ color: '#ffffff' }}>$ </span>
-                      <div 
-                        className="w-2 h-4 bg-white ml-1 animate-pulse"
-                        style={{
-                          animation: 'blink 1s infinite'
-                        }}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center">
-                    <span style={{ color: '#ffffff' }}>$ </span>
-                    <div 
-                      className="w-2 h-4 bg-white ml-1"
-                      style={{
-                        animation: 'blink 1s infinite'
-                      }}
-                    />
-                  </div>
-                )}
-                <style dangerouslySetInnerHTML={{
-                  __html: `
-                    @keyframes blink {
-                      0%, 50% { opacity: 1; }
-                      51%, 100% { opacity: 0; }
-                    }
-                  `
-                }} />
-              </div>
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+    <div ref={containerRef} className="resizable-layout">
+      <div className="left-panel">
+        {leftPanel}
+      </div>
+      <div
+        className={`resize-handle ${isDragging ? 'dragging' : ''}`}
+        onMouseDown={handleMouseDown}
+      />
+      <div className="right-panel" style={{ width: rightWidth }}>
+        {rightPanel}
       </div>
 
-      {/* Settings Panel */}
-      {showSettings && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className={`fixed inset-0 bg-black z-40 transition-opacity duration-[350ms] ease-out ${
-              isSettingsClosing ? 'opacity-0' : 'opacity-50'
-            }`}
-            onClick={handleSettingsClose}
-          />
-          
-          {/* Settings Panel */}
-          <div 
-            className={`fixed top-0 right-0 h-full w-80 z-50 transition-transform duration-[350ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
-              isSettingsClosing 
-                ? 'transform translate-x-full' 
-                : isSettingsAnimating
-                ? 'transform translate-x-full'
-                : 'transform translate-x-0'
-            }`}
-            style={{ backgroundColor: '#1e1e1e' }}
-          >
-            <div className="p-5 h-full overflow-y-auto">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-medium text-white">Settings</h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSettingsClose}
-                  className="p-1 text-gray-400 hover:text-white"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-
-              {/* Theme Section */}
-              <div className="mb-6">
-                <h3 className="text-white text-sm font-normal mb-3">Theme</h3>
-                <div className="inline-flex bg-black rounded-lg p-1">
-                  <button
-                    onClick={() => setTheme('light')}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm transition-all ${
-                      theme === 'light' 
-                        ? 'bg-gray-700 text-white' 
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Sun className="w-3.5 h-3.5" />
-                    <span>Light</span>
-                  </button>
-                  <button
-                    onClick={() => setTheme('dark')}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm transition-all ${
-                      theme === 'dark' 
-                        ? 'bg-gray-700 text-white' 
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Moon className="w-3.5 h-3.5" />
-                    <span>Dark</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Layout Section */}
-              <div className="mb-6">
-                <h3 className="text-white text-sm font-normal mb-3">Layout</h3>
-                <div className="flex bg-black rounded-lg p-1 w-fit">
-                  <button
-                    onClick={() => setLayout('horizontal')}
-                    className={`flex items-center justify-center p-2 rounded-md transition-all ${
-                      layout === 'horizontal' 
-                        ? 'bg-gray-700 text-white' 
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                    title="Side by side"
-                  >
-                    <RectangleHorizontal className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setLayout('vertical')}
-                    className={`flex items-center justify-center p-2 rounded-md transition-all ${
-                      layout === 'vertical' 
-                        ? 'bg-gray-700 text-white' 
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                    title="Top and bottom"
-                  >
-                    <RectangleVertical className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Font Family Section */}
-              <div className="mb-6">
-                <h3 className="text-white text-sm font-normal mb-3">Font Family</h3>
-                <div className="relative">
-                  <select
-                    value={fontFamily}
-                    onChange={(e) => setFontFamily(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-lg text-sm text-white appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-gray-500"
-                    style={{ backgroundColor: '#2a2a2a', border: '1px solid #404040' }}
-                  >
-                    <option value="Fira Code">Fira Code</option>
-                    <option value="JetBrains Mono">JetBrains Mono</option>
-                    <option value="Monaco">Monaco</option>
-                    <option value="Menlo">Menlo</option>
-                    <option value="Ubuntu Mono">Ubuntu Mono</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Font Size Section */}
-              <div className="mb-6">
-                <h3 className="text-white text-sm font-normal mb-4">Font Size: {fontSize}px</h3>
-                <div className="relative">
-                  <input
-                    type="range"
-                    min="10"
-                    max="24"
-                    step="0.5"
-                    value={fontSize}
-                    onChange={(e) => setFontSize(parseFloat(e.target.value))}
-                    className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((fontSize - 10) / (24 - 10)) * 100}%, #4a5568 ${((fontSize - 10) / (24 - 10)) * 100}%, #4a5568 100%)`
-                    }}
-                  />
-                  <style dangerouslySetInnerHTML={{
-                    __html: `
-                      input[type="range"]::-webkit-slider-thumb {
-                        appearance: none;
-                        width: 16px;
-                        height: 16px;
-                        border-radius: 50%;
-                        background: #3b82f6;
-                        cursor: pointer;
-                        border: 2px solid #1e1e1e;
-                        box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3);
-                      }
-                      input[type="range"]::-moz-range-thumb {
-                        width: 16px;
-                        height: 16px;
-                        border-radius: 50%;
-                        background: #3b82f6;
-                        cursor: pointer;
-                        border: 2px solid #1e1e1e;
-                        box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3);
-                      }
-                    `
-                  }} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* New File Dialog */}
-      {showNewFileDialog && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black z-40 transition-opacity duration-[250ms]"
-            style={{ opacity: 0.5 }}
-            onClick={() => setShowNewFileDialog(false)}
-          />
-          
-          {/* Dialog */}
-          <div 
-            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 rounded-lg z-50 animate-scale-in"
-            style={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
-          >
-            {/* Dialog Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-700">
-              <h2 className="text-xl font-medium text-white">Create New File</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowNewFileDialog(false)}
-                className="p-1 text-gray-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            
-            {/* Dialog Content */}
-            <div className="px-6 py-5">
-              <label className="block text-gray-300 text-sm mb-3">New File Name</label>
-              <input
-                type="text"
-                value={newFileName}
-                onChange={(e) => setNewFileName(e.target.value)}
-                placeholder="filename.orus"
-                className="w-full px-4 py-3 rounded-lg text-sm text-white bg-gray-900 border border-gray-700 focus:outline-none focus:border-blue-500"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleCreateNewFile();
-                  }
-                }}
-              />
-            </div>
-            
-            {/* Dialog Footer */}
-            <div className="flex justify-end px-6 py-4 border-t border-gray-700 space-x-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowNewFileDialog(false)}
-                className="px-4 py-2 text-gray-300 border-gray-600"
-              >
-                <X className="w-4 h-4 mr-2" />
-                Cancel
-              </Button>
-              
-              <Button
-                onClick={handleCreateNewFile}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={!newFileName.trim()}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create
-              </Button>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Delete File Dialog */}
-      {showDeleteDialog && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black z-40 transition-opacity duration-[250ms]"
-            style={{ opacity: 0.5 }}
-            onClick={cancelDeleteFile}
-          />
-          
-          {/* Dialog */}
-          <div 
-            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 rounded-lg z-50 animate-scale-in"
-            style={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
-          >
-            {/* Dialog Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-700">
-              <h2 className="text-xl font-medium text-white">Delete File</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={cancelDeleteFile}
-                className="p-1 text-gray-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            
-            {/* Dialog Content */}
-            <div className="px-6 py-5">
-              <p className="text-gray-300 text-sm">
-                Are you sure you want to delete <span className="font-semibold text-white">"{fileToDelete}"</span>? 
-                This action cannot be undone.
-              </p>
-            </div>
-            
-            {/* Dialog Footer */}
-            <div className="flex justify-end px-6 py-4 border-t border-gray-700 space-x-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={cancelDeleteFile}
-                className="px-4 py-2 text-gray-300 border-gray-600"
-              >
-                Cancel
-              </Button>
-              
-              <Button
-                onClick={confirmDeleteFile}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
-              </Button>
-            </div>
-          </div>
-          
-          {/* Add smooth scale animation */}
-          <style dangerouslySetInnerHTML={{
-            __html: `
-              @keyframes scale-in {
-                0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
-                100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-              }
-              @keyframes fade-in {
-                0% { opacity: 0; }
-                100% { opacity: 1; }
-              }
-              .animate-scale-in {
-                animation: scale-in 0.2s ease-out;
-              }
-              .animate-fade-in {
-                animation: fade-in 0.25s ease-out;
-              }
-            `
-          }} />
-        </>
-      )}
+      <style>{`
+        .resizable-layout {
+          display: flex;
+          height: 100%;
+          width: 100%;
+        }
+        .left-panel {
+          flex: 1;
+          min-width: 0;
+        }
+        .resize-handle {
+          width: 4px;
+          background: transparent;
+          cursor: col-resize;
+          position: relative;
+          transition: background 0.2s;
+          flex-shrink: 0;
+        }
+        .resize-handle:hover,
+        .resize-handle.dragging {
+          background: rgba(99, 102, 241, 0.5);
+        }
+        .resize-handle::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 1px;
+          height: 100%;
+          background: rgb(45, 45, 45);
+        }
+        .right-panel {
+          flex-shrink: 0;
+          min-width: 250px;
+          max-width: 800px;
+        }
+      `}</style>
     </div>
   );
 };
 
-export default CleanPlayground;
+interface TabProps {
+  file: any;
+  isActive: boolean;
+  onClick: () => void;
+  onClose?: () => void;
+  onRename?: (newName: string) => void;
+  onRun?: () => void;
+}
+
+const Tab: React.FC<TabProps> = ({ file, isActive, onClick, onClose, onRename, onRun }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(file.name);
+
+  const handleDoubleClick = () => {
+    if (onRename) {
+      setIsEditing(true);
+      setEditName(file.name);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (onRename && editName.trim()) {
+      onRename(editName.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditName(file.name);
+    }
+  };
+
+  const getFileIcon = (fileName: string) => {
+    if (fileName.endsWith('.orus')) return '🦀';
+    if (fileName.endsWith('.py')) return '🐍';
+    if (fileName.endsWith('.js') || fileName.endsWith('.ts')) return '⚡';
+    return '📄';
+  };
+
+  return (
+    <div className={`file-tab ${isActive ? 'active' : ''}`} onClick={onClick}>
+      <div className="tab-content">
+        <div className="tab-left">
+          <span className="file-icon">{getFileIcon(file.name)}</span>
+          {isEditing ? (
+            <input
+              className="tab-input"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              onBlur={handleSubmit}
+              onKeyDown={handleKeyDown}
+              autoFocus
+            />
+          ) : (
+            <span className="tab-name" onDoubleClick={handleDoubleClick}>
+              {file.name}
+            </span>
+          )}
+        </div>
+        <div className="tab-right">
+          {onRun && (
+            <button 
+              className="tab-action-button run-action" 
+              title="Run File"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRun();
+              }}
+            >
+              <span>▶</span>
+            </button>
+          )}
+          {onClose && (
+            <button
+              className="tab-action-button close-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              title="Close File"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      </div>
+
+      <style>{`
+        .file-tab {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          background: rgb(18, 18, 18);
+          border-bottom: 1px solid rgb(40, 40, 40);
+          font-size: 13px;
+          color: #ffffff;
+          cursor: pointer;
+          transition: all 0.2s;
+          position: relative;
+        }
+        .tab-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 12px;
+          height: 40px;
+        }
+        .tab-left {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .tab-right {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .file-icon {
+          font-size: 16px;
+          display: flex;
+          align-items: center;
+          opacity: 0.8;
+        }
+        .tab-name {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          color: #e0e0e0;
+          font-size: 13px;
+        }
+        .tab-input {
+          background: rgb(40, 40, 40);
+          border: 1px solid rgb(60, 60, 60);
+          color: #ffffff;
+          padding: 2px 4px;
+          border-radius: 3px;
+          font-size: 12px;
+          min-width: 80px;
+        }
+        .tab-input:focus {
+          outline: none;
+          border-color: #22c55e;
+        }
+        .file-tab.active {
+          background: rgb(18, 18, 18);
+        }
+        .file-tab.active .tab-name {
+          color: #ffffff;
+        }
+        .tab-action-button {
+          background: none;
+          border: none;
+          color: #7a7a7a;
+          font-size: 12px;
+          cursor: pointer;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 3px;
+          transition: all 0.2s;
+        }
+        .tab-action-button:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: #ffffff;
+        }
+        .close-button {
+          font-size: 14px;
+          font-weight: 600;
+        }
+        .run-action {
+          color: #22c55e;
+        }
+        .run-action:hover {
+          background: rgba(34, 197, 94, 0.1);
+        }
+      `}</style>
+    </div>
+  );
+};
+
+interface ToolbarProps {
+  onRun: () => void;
+  isRunning: boolean;
+  isRuntimeReady: boolean;
+}
+
+const Toolbar: React.FC<ToolbarProps> = ({
+  onRun,
+  isRunning,
+  isRuntimeReady
+}) => {
+  return (
+    <div className="toolbar">
+      <div className="toolbar-left">
+        <div className="logo">
+          <div className="logo-icon">🦀</div>
+          <span>Orus</span>
+        </div>
+      </div>
+      <div className="toolbar-center">
+        <button
+          className="toolbar-button run-button"
+          onClick={onRun}
+          disabled={isRunning || !isRuntimeReady}
+          title="Run Code (Ctrl+Enter)"
+        >
+          {isRunning ? (
+            <>
+              <div className="spinner"></div>
+              <span>Running...</span>
+            </>
+          ) : (
+            <>
+              <span>▶</span>
+              <span>Run</span>
+            </>
+          )}
+        </button>
+        <button className="toolbar-button settings-button" title="Settings">
+          <span>⚙</span>
+        </button>
+      </div>
+      <div className="toolbar-right">
+        {/* Empty for balance */}
+      </div>
+
+      <style>{`
+        .toolbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 16px;
+          background: rgb(25, 25, 25);
+          border-bottom: 1px solid rgb(45, 45, 45);
+          min-height: 48px;
+        }
+        .toolbar-left {
+          display: flex;
+          align-items: center;
+          flex: 1;
+        }
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 600;
+          font-size: 16px;
+          color: #ffffff;
+        }
+        .logo-icon {
+          font-size: 20px;
+        }
+        .toolbar-center {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          justify-content: center;
+          flex: 1;
+        }
+        .toolbar-right {
+          flex: 1;
+        }
+          align-items: center;
+          gap: 8px;
+        }
+        .toolbar-button {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 16px;
+          border: 1px solid rgb(55, 55, 55);
+          border-radius: 8px;
+          background: transparent;
+          color: #ffffff;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+        }
+        .toolbar-button:hover {
+          background: rgb(40, 40, 40);
+          border-color: rgb(65, 65, 65);
+        }
+        .toolbar-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .toolbar-button:disabled:hover {
+          background: transparent;
+          border-color: rgb(55, 55, 55);
+        }
+        .run-button {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          border: none;
+          border-radius: 12px;
+          padding: 8px 20px;
+          font-weight: 600;
+          font-size: 14px;
+          color: white;
+          box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
+          transition: all 0.2s ease;
+        }
+        .run-button:hover:not(:disabled) {
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+        }
+        .run-button:active:not(:disabled) {
+          transform: translateY(0);
+          box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
+        }
+        .settings-button {
+          background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+          border: none;
+          border-radius: 12px;
+          padding: 8px 16px;
+          font-weight: 600;
+          font-size: 14px;
+          color: white;
+          box-shadow: 0 1px 3px rgba(107, 114, 128, 0.2);
+          transition: all 0.2s ease;
+        }
+        .settings-button:hover {
+          background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 6px rgba(107, 114, 128, 0.25);
+        }
+        .settings-button:active {
+          transform: translateY(0);
+          box-shadow: 0 1px 3px rgba(107, 114, 128, 0.2);
+        }
+        .spinner {
+          width: 12px;
+          height: 12px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top: 2px solid #ffffff;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+interface OutputPanelProps {
+  output: any[];
+  onClear: () => void;
+}
+
+const OutputPanel: React.FC<OutputPanelProps> = ({ output, onClear }) => {
+  const outputRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (outputRef.current) {
+      outputRef.current.scrollTop = outputRef.current.scrollHeight;
+    }
+  }, [output]);
+
+  const formatTimestamp = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
+  return (
+    <div className="output-panel">
+      <div className="output-header">
+        <div className="panel-title">
+          <div className="terminal-icon">$</div>
+          <span>TERMINAL</span>
+        </div>
+        <button className="clear-button" onClick={onClear}>
+          Clear
+        </button>
+      </div>
+      <div className="output-content" ref={outputRef}>
+        {output.map((line) => (
+          <div key={line.id} className={`output-line output-${line.type}`}>
+            <span className="timestamp">[{formatTimestamp(line.timestamp)}]</span>
+            <span className="content">{line.content}</span>
+          </div>
+        ))}
+        {output.length === 0 && (
+          <div className="output-line output-info">
+            <span className="content">Ready for execution. Run your code to see output here.</span>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        .output-panel {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          background: rgb(25, 25, 25);
+        }
+        .output-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 12px 16px;
+          background: rgb(20, 20, 20);
+          border-bottom: 1px solid rgb(45, 45, 45);
+          min-height: 48px;
+        }
+        .panel-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 500;
+          font-size: 14px;
+          color: #ffffff;
+        }
+        .terminal-icon {
+          width: 16px;
+          height: 16px;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          border-radius: 3px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 10px;
+          font-weight: bold;
+          color: white;
+        }
+        .clear-button {
+          background: transparent;
+          border: 1px solid rgb(55, 55, 55);
+          color: #ffffff;
+          padding: 6px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 12px;
+          transition: all 0.2s;
+        }
+        .clear-button:hover {
+          background: rgb(45, 45, 45);
+          border-color: rgb(65, 65, 65);
+        }
+        .output-content {
+          flex: 1;
+          background: rgb(20, 20, 20);
+          color: #e5e7eb;
+          font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+          font-size: 13px;
+          line-height: 1.5;
+          padding: 12px;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        .output-line {
+          display: flex;
+          margin-bottom: 4px;
+          padding: 2px 0;
+          gap: 8px;
+        }
+        .timestamp {
+          color: #6b7280;
+          font-size: 11px;
+          flex-shrink: 0;
+          min-width: 80px;
+        }
+        .content {
+          flex: 1;
+          word-wrap: break-word;
+        }
+        .output-error .content {
+          color: #ef4444;
+          background: rgba(239, 68, 68, 0.1);
+          padding: 2px 6px;
+          border-radius: 3px;
+          border-left: 2px solid #ef4444;
+        }
+        .output-info .content {
+          color: #3b82f6;
+        }
+        .output-success .content {
+          color: #10b981;
+        }
+        .output-warning .content {
+          color: #f59e0b;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export const CleanPlayground: React.FC = () => {
+  const {
+    files,
+    activeFile,
+    output,
+    isRunning,
+    isRuntimeReady,
+    runCode,
+    clearOutput,
+    updateFileContent,
+    setActiveFile,
+    addNewFile,
+    closeFile,
+    renameFile
+  } = usePlayground();
+
+  const handleCodeChange = (value: string) => {
+    if (activeFile) {
+      updateFileContent(activeFile.id, value);
+    }
+  };
+
+  // Always run the current active file's content
+  const handleRunCode = () => {
+    runCode();
+  };
+
+  const editorPanel = (
+    <div className="editor-panel">
+      <div className="editor-tabs-container">
+        <div className="editor-tabs-scrollable">
+          {activeFile && (
+            <Tab
+              key={activeFile.id}
+              file={activeFile}
+              isActive={true}
+              onClick={() => {}}
+              onClose={files.length > 1 ? () => closeFile(activeFile.id) : undefined}
+              onRename={(newName) => renameFile(activeFile.id, newName)}
+              onRun={handleRunCode}
+            />
+          )}
+        </div>
+        <div className="tab-actions">
+          <button
+            className="tab-action-button new-file-button"
+            onClick={() => addNewFile('untitled.orus')}
+            title="New file"
+          >
+            <span>+</span>
+          </button>
+        </div>
+      </div>
+      <div className="editor-container">
+        {activeFile && (
+          <CodeEditor
+            value={activeFile.content}
+            onChange={handleCodeChange}
+            language={activeFile.language}
+            onRun={handleRunCode}
+          />
+        )}
+      </div>
+
+      <style>{`
+        .editor-panel {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          background: rgb(18, 18, 18);
+        }
+        .editor-tabs-container {
+          display: flex;
+          justify-content: space-between;
+          background: rgb(18, 18, 18);
+          height: 40px;
+          border-bottom: 1px solid rgb(40, 40, 40);
+        }
+        .editor-tabs-scrollable {
+          display: flex;
+          flex: 1;
+          overflow-x: auto;
+          overflow-y: hidden;
+          scrollbar-width: thin;
+        }
+        .editor-tabs-scrollable::-webkit-scrollbar {
+          height: 3px;
+        }
+        .editor-tabs-scrollable::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+        }
+        .tab-actions {
+          display: flex;
+          align-items: center;
+          padding-right: 8px;
+        }
+        .tab-action-button {
+          background: transparent;
+          border: none;
+          color: #7a7a7a;
+          border-radius: 3px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: bold;
+          height: 24px;
+          width: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+          margin: 0 2px;
+        }
+        .new-file-button {
+          margin-left: 4px;
+        }
+        .tab-action-button:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: #ffffff;
+        }
+        .editor-container {
+          flex: 1;
+          position: relative;
+          background: rgb(18, 18, 18);
+          border-top: 1px solid rgb(30, 30, 30);
+        }
+      `}</style>
+    </div>
+  );
+
+  const outputPanel = (
+    <OutputPanel output={output} onClear={clearOutput} />
+  );
+
+  return (
+    <div className="clean-playground">
+      <Toolbar
+        onRun={handleRunCode}
+        isRunning={isRunning}
+        isRuntimeReady={isRuntimeReady}
+      />
+      <div className="main-content">
+        <ResizableLayout
+          leftPanel={editorPanel}
+          rightPanel={outputPanel}
+          initialRightWidth={400}
+          minRightWidth={250}
+          maxRightWidth={800}
+        />
+      </div>
+
+      <style>{`
+        .clean-playground {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          background: rgb(18, 18, 18);
+          color: #ffffff;
+          font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+        .main-content {
+          flex: 1;
+          min-height: 0;
+        }
+      `}</style>
+    </div>
+  );
+};

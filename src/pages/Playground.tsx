@@ -1,5 +1,5 @@
 
-import CleanPlayground from '@/components/playground/CleanPlayground';
+import { CleanPlayground } from '@/components/playground/CleanPlayground';
 import { Toaster } from '@/components/ui/toaster';
 
 const Playground = () => {
