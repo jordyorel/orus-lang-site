@@ -1,5 +1,6 @@
 // usePlayground.ts: State management and code execution
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { runOrusCode } from '@/utils/wasmLoader';
 
 interface OutputLine {
   id: string;
@@ -22,6 +23,8 @@ interface PlaygroundState {
   output: OutputLine[];
   isRunning: boolean;
   isRuntimeReady: boolean;
+  isSaving: boolean;
+  lastSaved: Date | null;
 }
 
 export const usePlayground = () => {
@@ -95,78 +98,91 @@ fn main() {
     activeFileId: 'main-orus',
     output: [],
     isRunning: false,
-    isRuntimeReady: false
+    isRuntimeReady: false,
+    isSaving: false,
+    lastSaved: null
   });
 
   const runtimeRef = useRef<any>(null);
   const outputIdCounter = useRef(0);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Initialize runtime (simulated for Orus language)
+  // Auto-save files to localStorage when they change
+  useEffect(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    setState(prev => ({ ...prev, isSaving: true }));
+
+    saveTimeoutRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem('orus-playground-files', JSON.stringify(state.files));
+        setState(prev => ({ 
+          ...prev, 
+          isSaving: false, 
+          lastSaved: new Date() 
+        }));
+      } catch (error) {
+        console.warn('Failed to save files:', error);
+        setState(prev => ({ ...prev, isSaving: false }));
+      }
+    }, 1000); // Debounce save by 1 second
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [state.files]);
+
+  // Load saved files from localStorage on initialization
+  useEffect(() => {
+    try {
+      const savedFiles = localStorage.getItem('orus-playground-files');
+      if (savedFiles) {
+        const files = JSON.parse(savedFiles);
+        if (files.length > 0) {
+          setState(prev => ({
+            ...prev,
+            files,
+            activeFileId: files[0].id,
+            lastSaved: new Date()
+          }));
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load saved files:', error);
+    }
+  }, []);
+
+  // Initialize runtime (real Orus WASM)
   useEffect(() => {
     initializeRuntime();
   }, []);
 
   const initializeRuntime = async () => {
     try {
-      addOutput('🔄 Initializing Orus runtime...', 'info');
+      addOutput('🔄 Initializing Orus WASM runtime...', 'info');
       
-      // Simulate runtime initialization
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Initialize the real Orus WASM runtime
+      await runOrusCode('// Runtime initialization test');
       
-      // Create a mock runtime for Orus language
       runtimeRef.current = {
         execute: (code: string) => {
-          return simulateOrusExecution(code);
+          return runOrusCode(code);
         }
       };
 
       setState(prev => ({ ...prev, isRuntimeReady: true }));
-      addOutput('✅ Orus runtime ready!', 'success');
+      addOutput('✅ Orus WASM runtime ready!', 'success');
       
     } catch (error) {
-      addOutput(`❌ Failed to initialize runtime: ${error}`, 'error');
+      addOutput(`❌ Failed to initialize WASM runtime: ${error}`, 'error');
+      console.error('WASM initialization error:', error);
     }
   };
 
-  const simulateOrusExecution = (code: string): Promise<string> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Check if code contains the default Fibonacci example
-        if (code.includes('DynamicProgramming') && code.includes('fibonacci_dp')) {
-          // Return the expected output for the default example
-          const output = `Fibonacci DP Examples:
-Fibonacci(10) = 55
-Fibonacci(15) = 610
-
-Coin Change Example:
-Minimum coins for 31 cents: 3
-
-Longest Increasing Subsequence Example:
-Sequence: [10, 22, 9, 33, 21, 50, 41, 60, 80, 1]
-Length of longest increasing subsequence: 6`;
-          resolve(output);
-        } else if (code.includes('print("Hello, Orus!")')) {
-          // Handle the default new file template
-          resolve('Hello, Orus!');
-        } else if (code.includes('print(')) {
-          // Try to extract and simulate print statements
-          const printMatches = code.match(/print\("([^"]+)"\)/g) || code.match(/print\('([^']+)'\)/g);
-          if (printMatches) {
-            const outputs = printMatches.map(match => {
-              const content = match.match(/print\(["']([^"']+)["']\)/);
-              return content ? content[1] : match;
-            });
-            resolve(outputs.join('\n'));
-          } else {
-            resolve('Code executed successfully (no visible output)');
-          }
-        } else {
-          // For other code, provide a generic response
-          resolve('Code executed successfully (no visible output)');
-        }
-      }, 800);
-    });
-  };
 
   const addOutput = useCallback((content: string, type: OutputLine['type'] = 'normal') => {
     const newOutput: OutputLine = {
@@ -199,29 +215,42 @@ Length of longest increasing subsequence: 6`;
       return;
     }
 
+    if (!state.isRuntimeReady) {
+      addOutput('⚠️ WASM runtime is not ready yet. Please wait...', 'warning');
+      return;
+    }
+
     setState(prev => ({ ...prev, isRunning: true }));
-    addOutput('🚀 Executing code...', 'info');
+    addOutput('🚀 Compiling and executing Orus code via WASM...', 'info');
 
     try {
       const result = await runtimeRef.current.execute(activeFile.content);
       
-      if (result) {
-        result.split('\n').forEach((line: string) => {
+      if (result && result.trim()) {
+        // Handle multi-line output
+        const lines = result.split('\n');
+        lines.forEach((line: string) => {
           if (line.trim()) {
-            addOutput(line, 'normal');
+            // Check if line contains an error
+            if (line.toLowerCase().includes('error') || line.toLowerCase().includes('exception')) {
+              addOutput(line, 'error');
+            } else {
+              addOutput(line, 'normal');
+            }
           }
         });
       } else {
-        addOutput('✅ Code executed successfully (no output)', 'success');
+        addOutput('✅ Code compiled and executed successfully (no output)', 'success');
       }
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      addOutput(`❌ Runtime Error: ${errorMessage}`, 'error');
+      addOutput(`❌ WASM Execution Error: ${errorMessage}`, 'error');
+      console.error('WASM execution error:', error);
     } finally {
       setState(prev => ({ ...prev, isRunning: false }));
     }
-  }, [state.isRunning, state.activeFileId, state.files, addOutput]);
+  }, [state.isRunning, state.activeFileId, state.files, state.isRuntimeReady, addOutput]);
 
   const updateFileContent = useCallback((fileId: string, content: string) => {
     setState(prev => ({
@@ -324,6 +353,8 @@ Length of longest increasing subsequence: 6`;
     output: state.output,
     isRunning: state.isRunning,
     isRuntimeReady: state.isRuntimeReady,
+    isSaving: state.isSaving,
+    lastSaved: state.lastSaved,
 
     // Actions
     runCode,

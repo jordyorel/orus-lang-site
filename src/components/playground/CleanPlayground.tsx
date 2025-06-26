@@ -304,13 +304,29 @@ interface ToolbarProps {
   onRun: () => void;
   isRunning: boolean;
   isRuntimeReady: boolean;
+  isSaving?: boolean;
+  lastSaved?: Date | null;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
   onRun,
   isRunning,
-  isRuntimeReady
+  isRuntimeReady,
+  isSaving = false,
+  lastSaved = null
 }) => {
+  const formatLastSaved = (date: Date | null) => {
+    if (!date) return '';
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  };
   return (
     <div className="toolbar">
       <div className="toolbar-left">
@@ -343,7 +359,21 @@ const Toolbar: React.FC<ToolbarProps> = ({
         </button>
       </div>
       <div className="toolbar-right">
-        {/* Empty for balance */}
+        <div className="save-status">
+          {isSaving ? (
+            <>
+              <div className="save-spinner"></div>
+              <span>Saving...</span>
+            </>
+          ) : lastSaved ? (
+            <>
+              <span className="save-check">✓</span>
+              <span>Saved {formatLastSaved(lastSaved)}</span>
+            </>
+          ) : (
+            <span className="save-pending">●</span>
+          )}
+        </div>
       </div>
 
       <style>{`
@@ -381,9 +411,33 @@ const Toolbar: React.FC<ToolbarProps> = ({
         }
         .toolbar-right {
           flex: 1;
-        }
+          display: flex;
+          justify-content: flex-end;
           align-items: center;
-          gap: 8px;
+        }
+        .save-status {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12px;
+          color: #9ca3af;
+          opacity: 0.8;
+        }
+        .save-spinner {
+          width: 10px;
+          height: 10px;
+          border: 1px solid rgba(156, 163, 175, 0.3);
+          border-top: 1px solid #9ca3af;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        .save-check {
+          color: #10b981;
+          font-size: 10px;
+        }
+        .save-pending {
+          color: #f59e0b;
+          font-size: 8px;
         }
         .toolbar-button {
           display: flex;
@@ -622,10 +676,11 @@ export const CleanPlayground: React.FC = () => {
     output,
     isRunning,
     isRuntimeReady,
+    isSaving,
+    lastSaved,
     runCode,
     clearOutput,
     updateFileContent,
-    setActiveFile,
     addNewFile,
     closeFile,
     renameFile
@@ -754,6 +809,8 @@ export const CleanPlayground: React.FC = () => {
         onRun={handleRunCode}
         isRunning={isRunning}
         isRuntimeReady={isRuntimeReady}
+        isSaving={isSaving}
+        lastSaved={lastSaved}
       />
       <div className="main-content">
         <ResizableLayout
