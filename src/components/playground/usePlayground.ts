@@ -221,10 +221,12 @@ fn main() {
     }
 
     setState(prev => ({ ...prev, isRunning: true }));
-    addOutput('🚀 Compiling and executing Orus code via WASM...', 'info');
+    const startTime = performance.now();
 
     try {
       const result = await runtimeRef.current.execute(activeFile.content);
+      const elapsedTime = ((performance.now() - startTime) / 1000).toFixed(2);
+      addOutput(`✅ Executed in ${elapsedTime}s`, 'success');
       
       if (result && result.trim()) {
         // Handle multi-line output
