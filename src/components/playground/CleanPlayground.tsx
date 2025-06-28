@@ -9,6 +9,7 @@ interface ResizableLayoutProps {
   initialRightWidth?: number;
   minRightWidth?: number;
   maxRightWidth?: number;
+  hasOutput?: boolean;
 }
 
 const ResizableLayout: React.FC<ResizableLayoutProps> = ({
@@ -16,11 +17,23 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   rightPanel,
   initialRightWidth = 400,
   minRightWidth = 250,
-  maxRightWidth = 800
+  maxRightWidth = 800,
+  hasOutput = false
 }) => {
   const [rightWidth, setRightWidth] = useState(initialRightWidth);
   const [isDragging, setIsDragging] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsDragging(true);
@@ -55,6 +68,21 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
       };
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  if (isMobile) {
+    return (
+      <div ref={containerRef} className="mobile-layout">
+        <div className="mobile-editor">
+          {leftPanel}
+        </div>
+        {hasOutput && (
+          <div className="mobile-output">
+            {rightPanel}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div ref={containerRef} className="resizable-layout">
@@ -106,13 +134,39 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
           min-width: 250px;
           max-width: 800px;
         }
+        
+        .mobile-layout {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          width: 100%;
+        }
+        .mobile-editor {
+          flex: 1;
+          min-height: 0;
+        }
+        .mobile-layout:has(.mobile-output) .mobile-editor {
+          max-height: 60vh;
+        }
+        .mobile-output {
+          flex: 0 0 40vh;
+          min-height: 200px;
+          border-top: 1px solid rgb(45, 45, 45);
+        }
       `}</style>
     </div>
   );
 };
 
+interface File {
+  id: string;
+  name: string;
+  content: string;
+  language: string;
+}
+
 interface TabProps {
-  file: any;
+  file: File;
   isActive: boolean;
   onClick: () => void;
   onClose?: () => void;
@@ -222,6 +276,12 @@ const Tab: React.FC<TabProps> = ({ file, isActive, onClick, onClose, onRename, o
           padding: 8px 12px;
           height: 40px;
         }
+        @media (max-width: 768px) {
+          .tab-content {
+            padding: 6px 10px;
+            height: 36px;
+          }
+        }
         .tab-left {
           display: flex;
           align-items: center;
@@ -306,6 +366,7 @@ interface ToolbarProps {
   isRuntimeReady: boolean;
   isSaving?: boolean;
   lastSaved?: Date | null;
+  onSettingsClick?: () => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
@@ -313,7 +374,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
   isRunning,
   isRuntimeReady,
   isSaving = false,
-  lastSaved = null
+  lastSaved = null,
+  onSettingsClick
 }) => {
   const formatLastSaved = (date: Date | null) => {
     if (!date) return '';
@@ -354,7 +416,11 @@ const Toolbar: React.FC<ToolbarProps> = ({
             </>
           )}
         </button>
-        <button className="toolbar-button settings-button" title="Settings">
+        <button 
+          className="toolbar-button settings-button" 
+          title="Settings"
+          onClick={onSettingsClick}
+        >
           <span>⚙</span>
         </button>
       </div>
@@ -386,6 +452,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
           border-bottom: 1px solid rgb(45, 45, 45);
           min-height: 48px;
         }
+        @media (max-width: 768px) {
+          .toolbar {
+            padding: 6px 12px;
+            min-height: 44px;
+          }
+        }
         .toolbar-left {
           display: flex;
           align-items: center;
@@ -399,6 +471,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
           font-size: 16px;
           color: #ffffff;
         }
+        @media (max-width: 768px) {
+          .logo {
+            font-size: 14px;
+            gap: 6px;
+          }
+        }
         .logo-icon {
           font-size: 20px;
         }
@@ -408,6 +486,12 @@ const Toolbar: React.FC<ToolbarProps> = ({
           gap: 12px;
           justify-content: center;
           flex: 1;
+        }
+        @media (max-width: 768px) {
+          .toolbar-center {
+            gap: 8px;
+            flex: 0 1 auto;
+          }
         }
         .toolbar-right {
           flex: 1;
@@ -422,6 +506,20 @@ const Toolbar: React.FC<ToolbarProps> = ({
           font-size: 12px;
           color: #9ca3af;
           opacity: 0.8;
+        }
+        @media (max-width: 768px) {
+          .save-status {
+            font-size: 10px;
+            gap: 4px;
+          }
+          .save-status span {
+            display: none;
+          }
+          .save-status .save-check,
+          .save-status .save-pending,
+          .save-status .save-spinner {
+            display: block;
+          }
         }
         .save-spinner {
           width: 10px;
@@ -454,6 +552,13 @@ const Toolbar: React.FC<ToolbarProps> = ({
           transition: all 0.2s ease;
           white-space: nowrap;
         }
+        @media (max-width: 768px) {
+          .toolbar-button {
+            padding: 6px 12px;
+            font-size: 12px;
+            gap: 4px;
+          }
+        }
         .toolbar-button:hover {
           background: rgb(40, 40, 40);
           border-color: rgb(65, 65, 65);
@@ -476,6 +581,13 @@ const Toolbar: React.FC<ToolbarProps> = ({
           color: white;
           box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
           transition: all 0.2s ease;
+        }
+        @media (max-width: 768px) {
+          .run-button {
+            padding: 6px 16px;
+            font-size: 13px;
+            border-radius: 10px;
+          }
         }
         .run-button:hover:not(:disabled) {
           background: linear-gradient(135deg, #059669 0%, #047857 100%);
@@ -523,8 +635,15 @@ const Toolbar: React.FC<ToolbarProps> = ({
   );
 };
 
+interface OutputLine {
+  id: string;
+  type: 'normal' | 'info' | 'error' | 'success' | 'warning';
+  content: string;
+  timestamp: Date;
+}
+
 interface OutputPanelProps {
-  output: any[];
+  output: OutputLine[];
   onClear: () => void;
 }
 
@@ -587,6 +706,12 @@ const OutputPanel: React.FC<OutputPanelProps> = ({ output, onClear }) => {
           border-bottom: 1px solid rgb(45, 45, 45);
           min-height: 48px;
         }
+        @media (max-width: 768px) {
+          .output-header {
+            padding: 8px 12px;
+            min-height: 40px;
+          }
+        }
         .panel-title {
           display: flex;
           align-items: center;
@@ -631,6 +756,12 @@ const OutputPanel: React.FC<OutputPanelProps> = ({ output, onClear }) => {
           padding: 12px;
           overflow-y: auto;
           overflow-x: hidden;
+        }
+        @media (max-width: 768px) {
+          .output-content {
+            padding: 8px;
+            font-size: 12px;
+          }
         }
         .output-line {
           display: flex;
@@ -748,6 +879,11 @@ export const CleanPlayground: React.FC = () => {
           height: 40px;
           border-bottom: 1px solid rgb(40, 40, 40);
         }
+        @media (max-width: 768px) {
+          .editor-tabs-container {
+            height: 36px;
+          }
+        }
         .editor-tabs-scrollable {
           display: flex;
           flex: 1;
@@ -819,6 +955,7 @@ export const CleanPlayground: React.FC = () => {
           initialRightWidth={400}
           minRightWidth={250}
           maxRightWidth={800}
+          hasOutput={output.length > 0}
         />
       </div>
 
@@ -830,6 +967,12 @@ export const CleanPlayground: React.FC = () => {
           background: rgb(18, 18, 18);
           color: #ffffff;
           font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+        @media (max-width: 768px) {
+          .clean-playground {
+            height: 100dvh;
+            min-height: 100vh;
+          }
         }
         .main-content {
           flex: 1;
