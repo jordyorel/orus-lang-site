@@ -334,7 +334,7 @@ fn main() {
     const file = state.files.find(f => f.id === fileId);
     if (!file) return;
 
-    let formatted = file.content
+    const formatted = file.content
       .split('\n')
       .map(line => line.trim())
       .join('\n')

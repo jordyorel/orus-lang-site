@@ -800,6 +800,383 @@ const OutputPanel: React.FC<OutputPanelProps> = ({ output, onClear }) => {
   );
 };
 
+interface SettingsPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+  theme: 'light' | 'dark';
+  onThemeChange: (theme: 'light' | 'dark') => void;
+  layout: 'horizontal' | 'vertical';
+  onLayoutChange: (layout: 'horizontal' | 'vertical') => void;
+  fontFamily: string;
+  onFontFamilyChange: (family: string) => void;
+  fontSize: number;
+  onFontSizeChange: (size: number) => void;
+}
+
+const SettingsPanel: React.FC<SettingsPanelProps> = ({
+  isOpen,
+  onClose,
+  theme,
+  onThemeChange,
+  layout,
+  onLayoutChange,
+  fontFamily,
+  onFontFamilyChange,
+  fontSize,
+  onFontSizeChange
+}) => {
+  const fontOptions = [
+    'JetBrains Mono',
+    'Fira Code',
+    'Monaco',
+    'Menlo',
+    'Courier New',
+    'monospace'
+  ];
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div 
+        className={`settings-backdrop ${isOpen ? 'open' : ''}`}
+        onClick={onClose}
+      />
+      
+      {/* Settings Panel */}
+      <div className={`settings-panel ${isOpen ? 'open' : ''}`}>
+        <div className="settings-header">
+          <h2>Settings</h2>
+          <button className="close-button" onClick={onClose}>
+            ×
+          </button>
+        </div>
+        
+        <div className="settings-content">
+          {/* Theme */}
+          <div className="setting-group">
+            <label className="setting-label">Theme</label>
+            <div className="theme-toggle">
+              <button
+                className={`theme-option ${theme === 'light' ? 'active' : ''}`}
+                onClick={() => onThemeChange('light')}
+              >
+                <span className="theme-icon">☀️</span>
+                Light
+              </button>
+              <button
+                className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
+                onClick={() => onThemeChange('dark')}
+              >
+                <span className="theme-icon">🌙</span>
+                Dark
+              </button>
+            </div>
+          </div>
+
+          {/* Layout */}
+          <div className="setting-group">
+            <label className="setting-label">Layout</label>
+            <div className="layout-toggle">
+              <button
+                className={`layout-option ${layout === 'horizontal' ? 'active' : ''}`}
+                onClick={() => onLayoutChange('horizontal')}
+                title="Horizontal Layout"
+              >
+                <div className="layout-icon horizontal-icon">
+                  <div className="layout-left"></div>
+                  <div className="layout-right"></div>
+                </div>
+              </button>
+              <button
+                className={`layout-option ${layout === 'vertical' ? 'active' : ''}`}
+                onClick={() => onLayoutChange('vertical')}
+                title="Vertical Layout"
+              >
+                <div className="layout-icon vertical-icon">
+                  <div className="layout-top"></div>
+                  <div className="layout-bottom"></div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Font Family */}
+          <div className="setting-group">
+            <label className="setting-label">Font Family</label>
+            <select 
+              className="font-select"
+              value={fontFamily}
+              onChange={(e) => onFontFamilyChange(e.target.value)}
+            >
+              {fontOptions.map(font => (
+                <option key={font} value={font}>{font}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Font Size */}
+          <div className="setting-group">
+            <label className="setting-label">Font Size: {fontSize}px</label>
+            <div className="font-size-slider">
+              <input
+                type="range"
+                min="10"
+                max="24"
+                value={fontSize}
+                onChange={(e) => onFontSizeChange(parseInt(e.target.value))}
+                className="slider"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        .settings-backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+          z-index: 998;
+        }
+        .settings-backdrop.open {
+          opacity: 1;
+          visibility: visible;
+        }
+        
+        .settings-panel {
+          position: fixed;
+          top: 0;
+          right: 0;
+          width: 320px;
+          height: 100vh;
+          background: rgb(25, 25, 25);
+          border-left: 1px solid rgb(45, 45, 45);
+          transform: translateX(100%);
+          transition: transform 0.3s ease;
+          z-index: 999;
+          display: flex;
+          flex-direction: column;
+        }
+        .settings-panel.open {
+          transform: translateX(0);
+        }
+        
+        .settings-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 20px;
+          border-bottom: 1px solid rgb(45, 45, 45);
+        }
+        .settings-header h2 {
+          color: #ffffff;
+          font-size: 24px;
+          font-weight: 600;
+          margin: 0;
+        }
+        .close-button {
+          background: none;
+          border: none;
+          color: #ffffff;
+          font-size: 24px;
+          cursor: pointer;
+          padding: 0;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+          transition: background 0.2s;
+        }
+        .close-button:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .settings-content {
+          flex: 1;
+          padding: 20px;
+          overflow-y: auto;
+        }
+        
+        .setting-group {
+          margin-bottom: 24px;
+        }
+        .setting-label {
+          display: block;
+          color: #ffffff;
+          font-size: 16px;
+          font-weight: 500;
+          margin-bottom: 12px;
+        }
+        
+        .theme-toggle {
+          display: flex;
+          background: rgb(18, 18, 18);
+          border-radius: 8px;
+          padding: 4px;
+          gap: 4px;
+        }
+        .theme-option {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 10px 12px;
+          background: none;
+          border: none;
+          color: #9ca3af;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 13px;
+          font-weight: 500;
+        }
+        .theme-option.active {
+          background: rgb(45, 45, 45);
+          color: #ffffff;
+          box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
+        }
+        .theme-option:hover:not(.active) {
+          background: rgb(35, 35, 35);
+          color: #ffffff;
+        }
+        .theme-icon {
+          font-size: 14px;
+          opacity: 0.9;
+        }
+        
+        .layout-toggle {
+          display: flex;
+          gap: 12px;
+        }
+        .layout-option {
+          width: 56px;
+          height: 42px;
+          background: rgb(18, 18, 18);
+          border: 1.5px solid rgb(45, 45, 45);
+          border-radius: 6px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+        .layout-option.active {
+          border-color: #6366f1;
+          background: rgba(99, 102, 241, 0.1);
+          box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.2);
+        }
+        .layout-option:hover:not(.active) {
+          border-color: rgb(65, 65, 65);
+        }
+        
+        .layout-icon {
+          width: 28px;
+          height: 20px;
+          display: flex;
+          gap: 2px;
+        }
+        .horizontal-icon {
+          flex-direction: row;
+        }
+        .vertical-icon {
+          flex-direction: column;
+        }
+        .layout-left, .layout-right, .layout-top, .layout-bottom {
+          background: #6b7280;
+          border-radius: 2px;
+          transition: background 0.2s ease;
+        }
+        .layout-left, .layout-right {
+          flex: 1;
+          height: 100%;
+        }
+        .layout-top, .layout-bottom {
+          width: 100%;
+          flex: 1;
+        }
+        .layout-option.active .layout-left,
+        .layout-option.active .layout-right,
+        .layout-option.active .layout-top,
+        .layout-option.active .layout-bottom {
+          background: #6366f1;
+        }
+        
+        .font-select {
+          width: 100%;
+          padding: 12px;
+          background: rgb(18, 18, 18);
+          border: 1px solid rgb(45, 45, 45);
+          border-radius: 8px;
+          color: #ffffff;
+          font-size: 14px;
+          cursor: pointer;
+        }
+        .font-select:focus {
+          outline: none;
+          border-color: #6366f1;
+        }
+        .font-select option {
+          background: rgb(18, 18, 18);
+          color: #ffffff;
+        }
+        
+        .font-size-slider {
+          margin-top: 8px;
+        }
+        .slider {
+          width: 100%;
+          height: 6px;
+          border-radius: 3px;
+          background: rgb(45, 45, 45);
+          outline: none;
+          cursor: pointer;
+          -webkit-appearance: none;
+        }
+        .slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #6366f1;
+          cursor: pointer;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+          transition: all 0.2s ease;
+        }
+        .slider::-webkit-slider-thumb:hover {
+          transform: scale(1.1);
+          box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);
+        }
+        .slider::-moz-range-thumb {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #6366f1;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+          .settings-panel {
+            width: 100%;
+            max-width: 320px;
+          }
+        }
+      `}</style>
+    </>
+  );
+};
+
 export const CleanPlayground: React.FC = () => {
   const {
     files,
@@ -816,6 +1193,13 @@ export const CleanPlayground: React.FC = () => {
     closeFile,
     renameFile
   } = usePlayground();
+
+  // Settings state
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [layout, setLayout] = useState<'horizontal' | 'vertical'>('horizontal');
+  const [fontFamily, setFontFamily] = useState('JetBrains Mono');
+  const [fontSize, setFontSize] = useState(14);
 
   const handleCodeChange = (value: string) => {
     if (activeFile) {
@@ -947,6 +1331,7 @@ export const CleanPlayground: React.FC = () => {
         isRuntimeReady={isRuntimeReady}
         isSaving={isSaving}
         lastSaved={lastSaved}
+        onSettingsClick={() => setIsSettingsOpen(true)}
       />
       <div className="main-content">
         <ResizableLayout
@@ -958,6 +1343,19 @@ export const CleanPlayground: React.FC = () => {
           hasOutput={output.length > 0}
         />
       </div>
+
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        theme={theme}
+        onThemeChange={setTheme}
+        layout={layout}
+        onLayoutChange={setLayout}
+        fontFamily={fontFamily}
+        onFontFamilyChange={setFontFamily}
+        fontSize={fontSize}
+        onFontSizeChange={setFontSize}
+      />
 
       <style>{`
         .clean-playground {
